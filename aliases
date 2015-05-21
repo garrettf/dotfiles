@@ -1,0 +1,30 @@
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+alias um="diskutil unmount Odysseus"
+
+alias ho_local="ssh -p 768 garrett@192.168.1.102"
+alias ka="open /Users/garrett/Downloads/killmouseaccel.app"
+alias ls="ls -G"
+alias pj="cd /Users/garrett/cal/61b/proj/61b-project-2/"
+
+alias love="/Applications/love.app/Contents/MacOS/love"
+alias o="open"
+alias charcount="ruby -e \"puts gets.chomp.length\""
+
+alias v=vagrant
+alias gs="git status"
+alias gd="git diff"
+alias gdc="git diff --cached"
+alias glp="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gl="git log"
+
+alias bi="bundle install"
+alias rs="rspec"
+alias rss="rspec ."
+
+alias mtab="open -a MacVim"
+
+alias iossim="open /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app"
+
+alias ss="cd /Volumes/Sidecar/staging"
