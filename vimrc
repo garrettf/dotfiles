@@ -260,11 +260,18 @@ let g:Tex_AutoFolding = 0
 " Close ack quickfix buffer when you open a file from it
 let g:ack_autoclose=1 
 
+let g:ctrlp_use_caching = 0
 let g:ctrlp_max_files=20000
-let g:ctrlp_custom_ignore={
-  \ 'dir':  '\v(\.(git|hg|svn|meteor))|(db/(data|dumps))|(_local_s3|log|public|tmp)|(_bower_components|_site|node_modules)$',
-  \ 'file': '\v(*.sublime-)|(\.(exe|so|dll|o))$'
-  \ }
+
+if executable('ag')
+    set grepprg=ag\ --nogroup\ --nocolor
+    let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+else
+  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
+  let g:ctrlp_prompt_mappings = {
+    \ 'AcceptSelection("e")': ['<space>', '<cr>', '<2-LeftMouse>'],
+    \ }
+endif
 
 " Don't update git line diffs while typing
 let g:gitgutter_realtime = 0
