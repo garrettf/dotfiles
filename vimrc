@@ -247,7 +247,8 @@ set guioptions-=L
 "     Plugin settings
 " ------------------------------------------------
 
-let NERDTreeShowLineNumbers=0
+let NERDTreeShowLineNumbers = 0
+let NERDTreeIgnore = ['\.pyc$', '\.o$']
 
 let g:tagbar_ctags_bin='/usr/local/bin/ctags'
 
