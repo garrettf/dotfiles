@@ -89,7 +89,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   Plug 'kchmck/vim-coffee-script'
 
   " Go support
-  Plug 'fatih/vim-go', { 'for': 'go' }
+  Plug 'fatih/vim-go'
 
   " Moonscript support
   Plug 'leafo/moonscript-vim', { 'for': 'moon' }
@@ -155,8 +155,7 @@ autocmd FileType java
   \ setlocal tabstop=4 |
   \ setlocal softtabstop=4
 
-" temporary for cs164
-autocmd FileType cpp
+autocmd FileType go
   \ setlocal shiftwidth=4 |
   \ setlocal tabstop=4 |
   \ setlocal softtabstop=4
