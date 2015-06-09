@@ -63,7 +63,11 @@ call plug#begin(expand('~/.vim/bundle/'))
   "Plug 'xolox/vim-misc'
   "Plug 'xolox/vim-easytags'
 
+  " Plain ctag highlighting
+  Plug 'abudden/taghighlight-automirror'
+
   "Plug 'majutsushi/tagbar'
+  Plug 'terryma/vim-expand-region'
 
   " ----------------------------------------------
   "     Language-specific Plugins
