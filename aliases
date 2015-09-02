@@ -20,6 +20,7 @@ alias glp="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset 
 alias gl="git log"
 
 alias bi="bundle install"
+alias be="bundle exec"
 alias rs="rspec"
 alias rss="rspec ."
 
