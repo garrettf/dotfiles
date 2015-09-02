@@ -100,6 +100,9 @@ call plug#begin(expand('~/.vim/bundle/'))
 
   " Scala support
   Plug 'derekwyatt/vim-scala'
+
+  " Coffee JSX support for React
+  Plug 'mtscout6/vim-cjsx'
   
 
 call plug#end()
