@@ -251,7 +251,7 @@ set guioptions-=L
 " ------------------------------------------------
 
 let NERDTreeShowLineNumbers = 0
-let NERDTreeIgnore = ['\.pyc$', '\.o$']
+let NERDTreeIgnore = ['\.pyc$', '\.o$', '\.jpg$']
 
 let g:tagbar_ctags_bin='/usr/local/bin/ctags'
 
@@ -264,12 +264,12 @@ let g:Tex_AutoFolding = 0
 " Close ack quickfix buffer when you open a file from it
 let g:ack_autoclose=1 
 
-let g:ctrlp_use_caching = 0
 let g:ctrlp_max_files=20000
 
 if executable('ag')
     set grepprg=ag\ --nogroup\ --nocolor
     let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+    let g:ctrlp_use_caching = 0
 else
   let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
   let g:ctrlp_prompt_mappings = {
