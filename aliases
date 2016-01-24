@@ -24,6 +24,7 @@ alias gpfo="git push -f origin"
 alias gpso="git push --set-upstream origin"
 
 alias bi="bundle install"
+alias be="bundle exec"
 alias rs="rspec"
 alias rss="rspec ."
 
