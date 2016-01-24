@@ -22,9 +22,6 @@ call plug#begin(expand('~/.vim/bundle/'))
   " Directory navigation window.
   Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 
-  " Use ack from vim with :Ack
-  Plug 'mileszs/ack.vim', { 'on': 'Ack' }
-
   " Use ag from vim with :Ag
   Plug 'rking/ag.vim', { 'on': 'Ag' }
 
@@ -36,23 +33,30 @@ call plug#begin(expand('~/.vim/bundle/'))
   " Git diff indicators next to line numbers
   Plug 'airblade/vim-gitgutter'
 
-  " Tool for lining up text
-  "    https://github.com/godlygeek/tabular
-  Plug 'godlygeek/tabular'
-
   " Auto-insert endifs and other block constructs
   Plug 'tpope/vim-endwise'
-
-  " Asynchronous and/or silent builds via external terminal or tmux
-  "   Use :Start[!] or :Dispatch[!] or :Make
-  "      https://github.com/tpope/vim-dispatch
-  Plug 'tpope/vim-dispatch'
 
   " Zen mode for distraction-free writing
   Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 
+  Plug 'majutsushi/tagbar'
+  Plug 'terryma/vim-expand-region'
+  Plug 'tpope/vim-fugitive'
+  Plug 'triglav/vim-visual-increment'
+  Plug 'vimwiki/vimwiki'
+
+  " Tool for lining up text
+  "    https://github.com/godlygeek/tabular
+  "Plug 'godlygeek/tabular'
+
+  " Asynchronous and/or silent builds via external terminal or tmux
+  "   Use :Start[!] or :Dispatch[!] or :Make
+  "      https://github.com/tpope/vim-dispatch
+  "Plug 'tpope/vim-dispatch'
+
+
   " Comment toggling
-  Plug 'tpope/vim-commentary'
+  "Plug 'tpope/vim-commentary'
 
   " Switches between relative and absolute line numbers based on mode
   " (disabled due to speed concerns)
@@ -64,48 +68,39 @@ call plug#begin(expand('~/.vim/bundle/'))
   "Plug 'xolox/vim-easytags'
 
   " Plain ctag highlighting
-  Plug 'abudden/taghighlight-automirror'
-
-  "Plug 'majutsushi/tagbar'
-  Plug 'terryma/vim-expand-region'
+  "Plug 'abudden/taghighlight-automirror'
 
   " ----------------------------------------------
   "     Language-specific Plugins
   " ----------------------------------------------
-  
+  Plug 'kchmck/vim-coffee-script'
+  Plug 'fatih/vim-go'
+  Plug 'derekwyatt/vim-scala'
+
+  " Embedded Coffeescript
+  Plug 'AndrewRadev/vim-eco'
+
   " Automatic XML tag closing:
   "   http://www.vim.org/scripts/script.php?script_id=13
-  Plug 'closetag.vim', { 'for': 'html' }
-
-  " Tim Pope's infamous rails gem
-  Plug 'tpope/vim-rails'
-
-  " Syntax highlighting and other tools for rspec
-  Plug 'Keithbsmiley/rspec.vim', { 'for': 'ruby' }
+  "Plug 'closetag.vim', { 'for': 'html' }
 
   " Syntax highlighting and other tools for Processing
-  Plug 'willpragnell/vim-reprocessed'
+  "Plug 'willpragnell/vim-reprocessed'
 
   " Syntax highlighting for Jade templates
-  Plug 'digitaltoad/vim-jade'
+  "Plug 'digitaltoad/vim-jade'
 
-  " Coffeescript support
-  Plug 'kchmck/vim-coffee-script'
+  " For debugging syntax highlighting
+  "Plug 'gerw/vim-HiLinkTrace'
 
-  " Go support
-  Plug 'fatih/vim-go'
-
-  " Moonscript support
-  Plug 'leafo/moonscript-vim', { 'for': 'moon' }
-
-  " Scala support
-  Plug 'derekwyatt/vim-scala'
-  
+  "Plug 'tpope/vim-rails'
+  "Plug 'ngmy/vim-rubocop'
+  "Plug 'Keithbsmiley/rspec.vim', { 'for': 'ruby' }
+  "Plug 'leafo/moonscript-vim', { 'for': 'moon' }
 
 call plug#end()
 
 filetype plugin indent on
-
 
 " ------------------------------------------------
 "     Indentation settings
@@ -119,7 +114,6 @@ set expandtab
 
 " Automatically indent based on context
 set autoindent
-
 
 " ------------------------------------------------
 "     Autocommands
@@ -151,7 +145,7 @@ fun! <SID>StripTrailingWhitespace()
     %s/\s\+$//e
     call cursor(l, c)
 endfun
-autocmd FileType c,cpp,java,php,ruby,python,perl,rb,html,haml autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
+autocmd FileType c,cpp,java,php,ruby,python,perl,rb,html,haml,yaml,sql autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
 
 " 4 spaces for java
 autocmd FileType java
@@ -163,6 +157,11 @@ autocmd FileType go
   \ setlocal shiftwidth=4 |
   \ setlocal tabstop=4 |
   \ setlocal softtabstop=4
+
+autocmd FileType mail
+  \ setlocal textwidth=72 |
+  \ setlocal colorcolumn=72 |
+  \ setlocal formatoptions=want
 
 " ------------------------------------------------
 "     Search and Replace settings
@@ -183,7 +182,6 @@ set smartcase
 " Default to performing replacement on all occurences of a match instead of
 " just the first per line.
 set gdefault
-
 
 " ------------------------------------------------
 "     Viewport settings
@@ -230,7 +228,6 @@ au FocusGained * :call HideCursor()
 au WinLeave * :call ShowCursor()
 au WinEnter * :call HideCursor()
 
-
 " ------------------------------------------------
 "     GUI settings
 " ------------------------------------------------
@@ -242,6 +239,8 @@ set guioptions-=R
 set guioptions-=l
 set guioptions-=L
 
+" Use console dialogs for prompts
+set guioptions+=c
 
 " ------------------------------------------------
 "     Plugin settings
@@ -258,11 +257,12 @@ let g:tex_flavor='latex'
 " Disable autofolding of latex
 let g:Tex_AutoFolding = 0
 
-" Close ack quickfix buffer when you open a file from it
-let g:ack_autoclose=1 
+let g:ag_autoclose=1
+let g:ag_qhandler="botright copen 15"
 
-let g:ctrlp_use_caching = 0
+let g:ctrlp_use_caching = 1
 let g:ctrlp_max_files=20000
+let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:25,results:25'
 
 if executable('ag')
     set grepprg=ag\ --nogroup\ --nocolor
@@ -276,6 +276,7 @@ endif
 
 " Don't update git line diffs while typing
 let g:gitgutter_realtime = 0
+let g:gitgutter_eager = 0
 let g:gitgutter_escape_grep = 1
 
 " Goyo
@@ -301,6 +302,35 @@ autocmd  User GoyoLeave nested call <SID>goyo_leave()
 " Faster but less accurate syntax highlighting of ctags
 "let g:easytags_syntax_keyword = 'always'
 
+" Tagbar settings for Golang
+let g:tagbar_type_go = {
+  \ 'ctagstype' : 'go',
+  \ 'kinds'     : [
+      \ 'p:package',
+      \ 'i:imports:1',
+      \ 'c:constants',
+      \ 'v:variables',
+      \ 't:types',
+      \ 'n:interfaces',
+      \ 'w:fields',
+      \ 'e:embedded',
+      \ 'm:methods',
+      \ 'r:constructor',
+      \ 'f:functions'
+  \ ],
+  \ 'sro' : '.',
+  \ 'kind2scope' : {
+      \ 't' : 'ctype',
+      \ 'n' : 'ntype'
+  \ },
+  \ 'scope2kind' : {
+      \ 'ctype' : 't',
+      \ 'ntype' : 'n'
+  \ },
+  \ 'ctagsbin'  : 'gotags',
+  \ 'ctagsargs' : '-sort -silent'
+\ }
+
 " ------------------------------------------------
 "     Miscellaneous Vim Settings
 " ------------------------------------------------
@@ -315,9 +345,9 @@ set visualbell
 set modelines=0
 
 " Enable syntax-folding
-set foldmethod=syntax
-" but unfold by default.
-set foldlevel=99
+"set foldmethod=syntax
+"" but unfold by default.
+"set foldlevel=99
 
 " Ctrl-V mode edits blocks regardless of underlying text
 set virtualedit=block
@@ -358,6 +388,9 @@ if !has("gui_running")
   set notimeout
 endif
 
+" Don't scan all included files for tab completion
+set complete-=i
+
 " ------------------------------------------------
 "     Keybindings : Essential
 " ------------------------------------------------
@@ -396,6 +429,9 @@ while (s:windowmapnr < strlen(s:wins))
     let s:windowmapnr += 1
 endwhile
 unlet s:windowmapnr s:wins
+
+" <D-]> to open tag under cursor in new tab
+nnoremap <D-]> <C-w>]<C-w>T
 
 " ------------------------------------------------
 "     Keybindings : Toggles
@@ -467,34 +503,84 @@ nnoremap <leader>n :mksession ~/.vim/session/
 " Set filetype to markdown with ,m
 nnoremap <leader>m :set filetype=markdown<CR>
 
+nnoremap <leader>bd Obinding.debug!<Esc>
+
+" <leader>c to copy current filename to clipboard
+nnoremap <leader>c :let @+ = expand("%")<CR>
+" include line number in visual mode
+vnoremap <leader>c :<BS><BS><BS><BS><BS>let @+ = expand("%") . ":" . line(".")<CR>
+
+" Open tag under cursor in new tab
+nnoremap <leader>w <C-w><C-]><C-w>T
+
+" Change filetype
+nnoremap <leader>ft :set ft=
+
+" Move splits left/right
+"  - disabled because it conflicts with default navigation bindings
+"nnoremap [ <C-w>3<
+"nnoremap ] <C-w>3>
+
 " Toggle tagbar
-"nmap <leader>b :TagbarToggle<CR>
+nmap <leader>b :TagbarToggle<CR>
 
 " Tabularize when writing tables with |'s
-inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
- 
-function! s:align()
-  let p = '^\s*|\s.*\s|\s*$'
-  if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
-    let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
-    let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
-    Tabularize/|/l1
-    normal! 0
-    call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
-  endif
+"function! s:align()
+"  let p = '^\s*|\s.*\s|\s*$'
+"  if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+"    let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
+"    let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
+"    Tabularize/|/l1
+"    normal! 0
+"    call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
+"  endif
+"endfunction
+"inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
+
+" Echo current syntax groups
+"map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+"\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+"\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
+" Use Shift-k to Ag for the current word
+nnoremap K :Ag "<cword>"<CR>
+vnoremap K "py:Ag "<C-R>p"<CR>
+
+" Hide status bar with <C-y>
+let s:hidden_all = 0
+function! ToggleHiddenAll()
+    if s:hidden_all  == 0
+        let s:hidden_all = 1
+        set noshowmode
+        set noruler
+        set laststatus=0
+        set noshowcmd
+    else
+        let s:hidden_all = 0
+        set showmode
+        set ruler
+        set laststatus=2
+        set showcmd
+    endif
 endfunction
+nnoremap <C-y> :call ToggleHiddenAll()<CR>
+
+" insert date with ctrl-D
+inoremap <Plug>NoVimwikiDecreaseLvlSingleItem <Plug>VimwikiDecreaseLvlSingleItem
+inoremap <C-d> <esc>"=strftime("[%F]")<CR>pa
 
 " ------------------------------------------------
 "     Colorscheme and Fonts
 " ------------------------------------------------
 
 " Use Powerline font
-set guifont=Menlo\ for\ Powerline:h13
+"set guifont=Menlo\ for\ Powerline:h13
 " ...or the regular Menlo
 "set guifont=Menlo:h12
-" Default to 5px of space in between lines
-set linespace=6
+set guifont=Fira\ Mono\ for\ Powerline:h13
 
+" Default to 4px of space in between lines
+set linespace=4
 
 " Use Powerline font characters for airline.vim
 let g:airline_powerline_fonts=1
@@ -509,16 +595,19 @@ let g:airline#extensions#default#section_truncate_width = {
 let g:airline_section_warning = ''
 
 " Colorschemes
+let g:enable_bold_font = 0
 
 " OCEAN
 "colorscheme base16-ocean
 "set background=dark
 " SOLARIZED LIGHT
-"colorscheme solarized
-"set background=light
+" colorscheme solarized
+" set background=light
 " TOMORROW LIGHT
 "colorscheme Tomorrow
 "set background=light
 " HYBRID
-colorscheme hybrid
 set background=dark
+"colorscheme hybrid_material
+"colorscheme material-theme
+colorscheme material_edit
