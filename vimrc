@@ -565,9 +565,12 @@ function! ToggleHiddenAll()
 endfunction
 nnoremap <C-y> :call ToggleHiddenAll()<CR>
 
-" insert date with ctrl-D
+" insert date with ctrl-D, time with ctrl-T
 inoremap <Plug>NoVimwikiDecreaseLvlSingleItem <Plug>VimwikiDecreaseLvlSingleItem
+inoremap <Plug>NoVimwikiIncreaseLvlSingleItem <Plug>VimwikiIncreaseLvlSingleItem
 inoremap <C-d> <esc>"=strftime("[%F]")<CR>pa
+inoremap <C-t> <esc>"=strftime("[%F %T%z]")<CR>pa
+
 
 " ------------------------------------------------
 "     Colorscheme and Fonts
