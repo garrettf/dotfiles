@@ -356,9 +356,8 @@ set modelines=0
 " Ctrl-V mode edits blocks regardless of underlying text
 set virtualedit=block
 
-" Keep buffers loaded when they are abandoned
-" (careful with this one if you tend to open many windows per project)
-set hidden
+" Close buffers when they're abandoned
+set nohidden
 
 " Tab completion in command mode
 set wildmenu
