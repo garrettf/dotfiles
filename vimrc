@@ -15,6 +15,8 @@ call plug#begin(expand('~/.vim/bundle/'))
 
   " Fuzzy search for directories, buffers, and MRU
   Plug 'kien/ctrlp.vim'
+  " 'faster' matching algorithm
+  Plug 'JazzCore/ctrlp-cmatcher'
 
   " Smart tab completion with <Tab>
   Plug 'ervandew/supertab'
@@ -262,17 +264,19 @@ let g:ag_qhandler="botright copen 15"
 
 let g:ctrlp_use_caching = 1
 let g:ctrlp_max_files=20000
-let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:25,results:25'
+let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:10,results:10'
 
 if executable('ag')
-    set grepprg=ag\ --nogroup\ --nocolor
-    let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  set grepprg=ag\ --nogroup\ --nocolor
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 else
   let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
   let g:ctrlp_prompt_mappings = {
     \ 'AcceptSelection("e")': ['<space>', '<cr>', '<2-LeftMouse>'],
     \ }
 endif
+
+let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
 
 " Don't update git line diffs while typing
 let g:gitgutter_realtime = 0
