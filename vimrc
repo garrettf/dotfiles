@@ -335,6 +335,11 @@ let g:tagbar_type_go = {
   \ 'ctagsargs' : '-sort -silent'
 \ }
 
+let wiki = {}
+let wiki.path = '~/vimwiki/'
+let wiki.nested_syntaxes = {'ruby': 'ruby', 'js': 'javascript', 'coffee': 'coffee'}
+let g:vimwiki_list = [wiki]
+
 " ------------------------------------------------
 "     Miscellaneous Vim Settings
 " ------------------------------------------------
