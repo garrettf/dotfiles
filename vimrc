@@ -550,9 +550,11 @@ nmap <leader>b :TagbarToggle<CR>
 "\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 "\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
-" Use Shift-k to Ag for the current word
+" Use Shift-k (Command-k to create a new tab) to Ag for the current word
 nnoremap K :Ag "<cword>"<CR>
+nnoremap <D-k> "pyw:tabnew<CR>:Ag "<C-R>p"<CR>
 vnoremap K "py:Ag "<C-R>p"<CR>
+vnoremap <D-k> "py:tabnew<CR>:Ag "<C-R>p"<CR>
 
 " Hide status bar with <C-y>
 let s:hidden_all = 0
