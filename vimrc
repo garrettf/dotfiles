@@ -538,6 +538,10 @@ nnoremap <leader>ft :set ft=
 " Toggle tagbar
 nmap <leader>b :TagbarToggle<CR>
 
+" Open latest commit in GitHub
+nmap <leader>gb :Gbrowse -<CR>
+vmap <leader>gb :Gbrowse -<CR>
+
 " Tabularize when writing tables with |'s
 "function! s:align()
 "  let p = '^\s*|\s.*\s|\s*$'
