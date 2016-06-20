@@ -72,6 +72,8 @@ call plug#begin(expand('~/.vim/bundle/'))
   " Plain ctag highlighting
   "Plug 'abudden/taghighlight-automirror'
 
+  Plug 'vim-scripts/swap-parameters'
+
   " ----------------------------------------------
   "     Language-specific Plugins
   " ----------------------------------------------
