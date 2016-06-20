@@ -415,8 +415,11 @@ let maplocalleader = "\\"
 nnoremap j gj
 nnoremap k gk
 
-" Remap VIM 0 to first non-blank character
+" Remap 0 to first non-blank character
 map 0 ^
+
+" Remap $ to stop before newlines in visual mode
+vnoremap $ g_
 
 " ------------------------------------------------
 "     Keybindings : Windows and Tabs
