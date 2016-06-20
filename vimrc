@@ -80,6 +80,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   Plug 'kchmck/vim-coffee-script'
   Plug 'fatih/vim-go'
   Plug 'derekwyatt/vim-scala'
+  Plug 'rodjek/vim-puppet'
 
   " Embedded Coffeescript
   Plug 'AndrewRadev/vim-eco'
