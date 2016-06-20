@@ -565,7 +565,7 @@ cabbrev Ag Ag!
 
 " Use Shift-k (Command-k to create a new tab) to Ag for the current word
 nnoremap K :Ag! "<cword>"<CR>
-nnoremap <D-k> "pyw:tabnew<CR>:Ag! "<C-R>p"<CR>
+nnoremap <D-k> eb"pyw:tabnew<CR>:Ag! "<C-R>p"<CR>
 vnoremap K "py:Ag! "<C-R>p"<CR>
 vnoremap <D-k> "py:tabnew<CR>:Ag! "<C-R>p"<CR>
 
