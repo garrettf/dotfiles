@@ -384,21 +384,6 @@ set showmatch
 " Blink for 0.2 seconds when highlighting a bracket
 set mat=2
 
-" Terminal-specific settings
-if !has("gui_running")
-  let g:hybrid_use_iTerm_colors = 1
-  set t_Co=256
-  let g:hybrid_use_Xresources = 0
-  syntax enable
-  set background=dark
-  "set nocursorline        " Don't paint cursor line
-  "set nocursorcolumn      " Don't paint cursor column
-  "set lazyredraw          " Wait to redraw
-  set ttimeout
-  set ttimeoutlen=250
-  set notimeout
-endif
-
 " Don't scan all included files for tab completion
 set complete-=i
 
@@ -638,3 +623,19 @@ set background=dark
 "colorscheme hybrid_material
 "colorscheme material-theme
 colorscheme material_edit
+
+" Terminal-specific settings
+if !has("gui_running")
+  colorscheme hybrid_material
+  let g:hybrid_use_iTerm_colors = 1
+  set t_Co=256
+  let g:hybrid_use_Xresources = 0
+  syntax enable
+  set background=dark
+  "set nocursorline        " Don't paint cursor line
+  "set nocursorcolumn      " Don't paint cursor column
+  "set lazyredraw          " Wait to redraw
+  set ttimeout
+  set ttimeoutlen=250
+  set notimeout
+endif
