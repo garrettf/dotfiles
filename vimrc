@@ -41,7 +41,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   " Zen mode for distraction-free writing
   Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 
-  Plug 'majutsushi/tagbar'
+  "Plug 'majutsushi/tagbar'
   Plug 'terryma/vim-expand-region'
   Plug 'tpope/vim-fugitive'
   Plug 'triglav/vim-visual-increment'
