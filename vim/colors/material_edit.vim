@@ -1,4 +1,4 @@
-" File:       hybrid_material.vim
+" File:       material_edit.vim
 " Maintainer: Kristijan Husak (kristijanhusak)
 " URL:        https://github.com/w0ng/vim-hybrid-material
 " BASED ON:   https://github.com/w0ng/vim-hybrid
@@ -76,7 +76,7 @@ if exists("syntax_on")
   syntax reset
 endif
 
-let colors_name = "hybrid_material"
+let colors_name = "material_edit"
 
 "}}}
 " GUI And Cterm Palettes:"{{{
