@@ -625,16 +625,20 @@ let g:enable_bold_font = 0
 " OCEAN
 "colorscheme base16-ocean
 "set background=dark
+
 " SOLARIZED LIGHT
-" colorscheme solarized
-" set background=light
+"colorscheme solarized8_light_low
+"let g:solarized_term_italics = 1
+
 " TOMORROW LIGHT
 "colorscheme Tomorrow
 "set background=light
 " HYBRID
-set background=dark
 "colorscheme hybrid_material
 "colorscheme material-theme
+
+" MATERIAL
+set background=dark
 colorscheme material_edit
 
 " Terminal-specific settings
