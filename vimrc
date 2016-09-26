@@ -517,7 +517,8 @@ nnoremap <leader>n :mksession ~/.vim/session/
 " Set filetype to markdown with ,m
 nnoremap <leader>m :set filetype=markdown<CR>
 
-nnoremap <leader>bd Obinding.debug!<Esc>
+" ,bd to insert binding.pry above
+nnoremap <leader>bd Obinding.pry<Esc>
 
 " <leader>c to copy current filename to clipboard
 nnoremap <leader>c :let @+ = expand("%")<CR>
