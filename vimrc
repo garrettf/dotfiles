@@ -580,6 +580,19 @@ inoremap <Plug>NoVimwikiIncreaseLvlSingleItem <Plug>VimwikiIncreaseLvlSingleItem
 inoremap <C-d> <esc>"=strftime("[%F]")<CR>pa
 inoremap <C-t> <esc>"=strftime("[%F %T%z]")<CR>pa
 
+let s:matchparen_enabled = 1
+function! ToggleMatchParen()
+  if s:matchparen_enabled == 1
+    execute 'NoMatchParen'
+    let s:matchparen_enabled = 0
+  else
+    execute 'DoMatchParen'
+    let s:matchparen_enabled = 1
+  endif
+endfunction
+
+" Toggle matching parenthesis syntax highlighting
+nnoremap <leader>p :call ToggleMatchParen()<CR>
 
 " ------------------------------------------------
 "     Colorscheme and Fonts
