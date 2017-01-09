@@ -85,6 +85,11 @@ call plug#begin(expand('~/.vim/bundle/'))
   " Embedded Coffeescript
   Plug 'AndrewRadev/vim-eco'
 
+  "Plug 'pangloss/vim-javascript'
+  Plug 'othree/yajs.vim'
+  Plug 'mxw/vim-jsx'
+  let g:jsx_ext_required = 0
+
   " Automatic XML tag closing:
   "   http://www.vim.org/scripts/script.php?script_id=13
   "Plug 'closetag.vim', { 'for': 'html' }
@@ -150,7 +155,7 @@ fun! <SID>StripTrailingWhitespace()
     %s/\s\+$//e
     call cursor(l, c)
 endfun
-autocmd FileType c,cpp,java,php,ruby,python,perl,rb,html,haml,yaml,sql autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
+autocmd FileType c,cpp,java,php,ruby,python,perl,rb,html,haml,yaml,sql,js,javascript,javascript.jsx autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
 
 " 4 spaces for java
 autocmd FileType java
