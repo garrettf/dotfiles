@@ -11,12 +11,18 @@ call plug#begin(expand('~/.vim/bundle/'))
   " ----------------------------------------------
 
   " Lightweight Powerline-like status bar.
-  Plug 'bling/vim-airline'
+  "Plug 'bling/vim-airline'
+  "Plug 'itchyny/lightline.vim'
 
   " Fuzzy search for directories, buffers, and MRU
   Plug 'kien/ctrlp.vim'
   " 'faster' matching algorithm
   Plug 'JazzCore/ctrlp-cmatcher'
+  Plug 'nixprime/cpsm'
+  Plug 'kassio/neoterm'
+
+  Plug 'ap/vim-buftabline'
+  Plug 'chrismccord/bclose.vim'
 
   " Smart tab completion with <Tab>
   Plug 'ervandew/supertab'
@@ -26,6 +32,9 @@ call plug#begin(expand('~/.vim/bundle/'))
 
   " Use ag from vim with :Ag
   Plug 'rking/ag.vim', { 'on': 'Ag' }
+
+  Plug '/usr/local/opt/fzf'
+  Plug 'junegunn/fzf.vim'
 
   " Mappings to change surrounding delimiters
   "   https://github.com/tpope/vim-surround
@@ -38,14 +47,22 @@ call plug#begin(expand('~/.vim/bundle/'))
   " Auto-insert endifs and other block constructs
   Plug 'tpope/vim-endwise'
 
+  " Asynchronous linting
+  Plug 'w0rp/ale'
+
   " Zen mode for distraction-free writing
   Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 
   "Plug 'majutsushi/tagbar'
   Plug 'terryma/vim-expand-region'
   Plug 'tpope/vim-fugitive'
+  Plug 'tpope/vim-rhubarb'
   Plug 'triglav/vim-visual-increment'
   Plug 'vimwiki/vimwiki'
+
+  Plug 'qpkorr/vim-bufkill'
+
+  Plug 'AndrewRadev/splitjoin.vim'
 
   " Tool for lining up text
   "    https://github.com/godlygeek/tabular
@@ -72,7 +89,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   " Plain ctag highlighting
   "Plug 'abudden/taghighlight-automirror'
 
-  Plug 'vim-scripts/swap-parameters'
+  "Plug 'vim-scripts/swap-parameters'
 
   " ----------------------------------------------
   "     Language-specific Plugins
@@ -81,12 +98,19 @@ call plug#begin(expand('~/.vim/bundle/'))
   Plug 'fatih/vim-go'
   Plug 'derekwyatt/vim-scala'
   Plug 'rodjek/vim-puppet'
-
+  Plug 'elixir-editors/vim-elixir'
+  
   " Embedded Coffeescript
   Plug 'AndrewRadev/vim-eco'
 
-  "Plug 'pangloss/vim-javascript'
-  Plug 'othree/yajs.vim'
+  " Syntax highlighting for Apache Thrift
+  Plug 'solarnz/thrift.vim'
+
+  "Plug 'kern/vim-es7'
+  Plug 'pangloss/vim-javascript'
+  let g:javascript_plugin_flow = 1
+
+  "Plug 'othree/yajs.vim'
   Plug 'mxw/vim-jsx'
   let g:jsx_ext_required = 0
 
@@ -144,6 +168,25 @@ augroup END
 " Disable 80-char marker in quickfix buffers (for Ack and CtrlP and whatnot)
 au BufReadPost quickfix setlocal colorcolumn=0
 
+" This makes opening Ruby files much faster
+let g:ruby_path = []
+
+let g:ale_linters = {
+\   'ruby': ['rubocop'],
+\   'javascript': ['flow', 'prettier'],
+\   'jsx': ['flow', 'prettier'],
+\}
+
+let g:ale_fixers = {
+\   'javascript': ['prettier'],
+\   'jsx': ['prettier'],
+\}
+" Only lint on open/save
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_fix_on_save = 1
+let g:ale_javascript_prettier_use_local_config = 1
+let g:ale_ruby_rubocop_executable = 'bundle'
+
 " Remove whitespace at EOL
 fun! <SID>StripTrailingWhitespace()
     " Ignore vimrc or cs164
@@ -155,7 +198,7 @@ fun! <SID>StripTrailingWhitespace()
     %s/\s\+$//e
     call cursor(l, c)
 endfun
-autocmd FileType c,cpp,java,php,ruby,python,perl,rb,html,haml,yaml,sql,js,javascript,javascript.jsx autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
+autocmd FileType c,cpp,java,php,ruby,eruby,python,perl,rb,html,haml,yaml,sql,js,javascript,javascript.jsx autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
 
 " 4 spaces for java
 autocmd FileType java
@@ -213,8 +256,10 @@ set scrolloff=3
 set sidescrolloff=5
 set display+=lastline
 
-" Give every window a status line
-set laststatus=2
+" Give every window NO status line
+set laststatus=0
+" ^                 a status line
+" set laststatus=2
 
 " Highlight the current line
 " (disabled due to cursor lag in large files)
@@ -267,6 +312,8 @@ let g:tex_flavor='latex'
 " Disable autofolding of latex
 let g:Tex_AutoFolding = 0
 
+" TODO switch to fzf.vim or ack.vim
+let g:ag_prg="rg --vimgrep"
 let g:ag_autoclose=1
 let g:ag_qhandler="botright copen 15"
 
@@ -276,20 +323,29 @@ let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:10,results:10'
 
 if executable('ag')
   set grepprg=ag\ --nogroup\ --nocolor
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  let g:ctrlp_user_command = 'cd %s && ag -l --nocolor --ignore thrift'
 else
   let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
   let g:ctrlp_prompt_mappings = {
     \ 'AcceptSelection("e")': ['<space>', '<cr>', '<2-LeftMouse>'],
     \ }
 endif
+" ripgrep instead?
+let g:ctrlp_user_command = 'cd %s && rg -g "!thrift" --files-with-matches ".*"'
 
-let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
+"let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
+let g:ctrlp_match_func = {'match': 'cpsm#CtrlPMatch'}
+
+" "foo bar" becomes "barfoo" when using ctrlP
+let g:cpsm_query_inverting_delimiter = ' '
 
 " Don't update git line diffs while typing
 let g:gitgutter_realtime = 0
 let g:gitgutter_eager = 0
 let g:gitgutter_escape_grep = 1
+
+" rhubarb config
+let g:github_enterprise_urls = ['https://git.corp.stripe.com']
 
 " Goyo
 let g:goyo_margin_top = 0
@@ -416,11 +472,41 @@ vnoremap $ g_
 " ------------------------------------------------
 
 " Move between windows with <C-hjkl> and <C-Tab>
-map <C-j> <C-W>j
-map <C-k> <C-W>k
-map <C-h> <C-W>h
-map <C-l> <C-W>l
-map <C-Tab> <C-W>w
+if has('nvim')
+  " Window navigation function
+  " Make ctrl-h/j/k/l move between windows and auto-insert in terminals
+  func! s:mapMoveToWindowInDirection(direction)
+      func! s:maybeInsertMode(direction)
+          stopinsert
+          execute "wincmd" a:direction
+
+          if &buftype == 'terminal'
+              startinsert!
+          endif
+      endfunc
+
+      execute "tnoremap" "<silent>" "<C-" . a:direction . ">"
+                  \ "<C-\\><C-n>"
+                  \ ":call <SID>maybeInsertMode(\"" . a:direction . "\")<CR>"
+      execute "nnoremap" "<silent>" "<C-" . a:direction . ">"
+                  \ ":call <SID>maybeInsertMode(\"" . a:direction . "\")<CR>"
+  endfunc
+  for dir in ["h", "j", "l", "k"]
+      call s:mapMoveToWindowInDirection(dir)
+  endfor
+else
+  map <C-j> <C-W>j
+  map <C-k> <C-W>k
+  map <C-h> <C-W>h
+  map <C-l> <C-W>l
+  map <C-Tab> <C-W>w
+
+  " window nav from terminal via ctrl keys (probably a bad idea)
+  tnoremap <C-h> <C-w>h
+  tnoremap <C-j> <C-w>j
+  tnoremap <C-k> <C-w>k
+  tnoremap <C-l> <C-w>l
+end
 
 " Meta+1-0 jumps to tab 1-10, Shift+Meta+1-0 jumps to tab 11-20:
 let s:windowmapnr = 0
@@ -435,7 +521,7 @@ endwhile
 unlet s:windowmapnr s:wins
 
 " <D-]> to open tag under cursor in new tab
-nnoremap <D-]> <C-w>]<C-w>T
+" nnoremap <D-]> <C-w>]<C-w>T
 
 " ------------------------------------------------
 "     Keybindings : Toggles
@@ -507,13 +593,13 @@ nnoremap <leader>n :mksession ~/.vim/session/
 " Set filetype to markdown with ,m
 nnoremap <leader>m :set filetype=markdown<CR>
 
-" ,bd to insert binding.pry above
-nnoremap <leader>bd Obinding.pry<Esc>
+" Do my hacky markdown mail dance with ,a
+nnoremap <leader>a :set filetype=markdown<CR>:set cc=73<CR>:set tw=72<CR>
 
 " <leader>c to copy current filename to clipboard
 nnoremap <leader>c :let @+ = expand("%")<CR>
 " include line number in visual mode
-vnoremap <leader>c :<BS><BS><BS><BS><BS>let @+ = expand("%") . ":" . line(".")<CR>
+vnoremap <leader>c :<BS><BS><BS><BS><BS>let @+ = expand("%") . " -l " . line(".")<CR>
 
 " Open tag under cursor in new tab
 nnoremap <leader>w <C-w><C-]><C-w>T
@@ -554,11 +640,17 @@ vmap <leader>gb :Gbrowse -<CR>
 " Never auto-jump to first result with :Ag
 cabbrev Ag Ag!
 
+" I never mean to use :E
+cabbrev E e
+
+" repeat last : command with <Alt-.>
+nnoremap ≥ :@:<CR>
+
 " Use Shift-k (Command-k to create a new tab) to Ag for the current word
 nnoremap K :Ag! "<cword>"<CR>
-nnoremap <D-k> eb"pyw:tabnew<CR>:Ag! "<C-R>p"<CR>
 vnoremap K "py:Ag! "<C-R>p"<CR>
-vnoremap <D-k> "py:tabnew<CR>:Ag! "<C-R>p"<CR>
+" nnoremap <D-k> eb"pye:tabnew<CR>:Ag! "<C-R>p"<CR>
+" vnoremap <D-k> "py:tabnew<CR>:Ag! "<C-R>p"<CR>
 
 " Hide status bar with <C-y>
 let s:hidden_all = 0
@@ -585,44 +677,111 @@ inoremap <Plug>NoVimwikiIncreaseLvlSingleItem <Plug>VimwikiIncreaseLvlSingleItem
 inoremap <C-d> <esc>"=strftime("[%F]")<CR>pa
 inoremap <C-t> <esc>"=strftime("[%F %T%z]")<CR>pa
 
-let s:matchparen_enabled = 1
-function! ToggleMatchParen()
-  if s:matchparen_enabled == 1
-    execute 'NoMatchParen'
-    let s:matchparen_enabled = 0
-  else
-    execute 'DoMatchParen'
-    let s:matchparen_enabled = 1
-  endif
-endfunction
-
-" Toggle matching parenthesis syntax highlighting
-nnoremap <leader>p :call ToggleMatchParen()<CR>
-
 " ------------------------------------------------
 "     Colorscheme and Fonts
 " ------------------------------------------------
+if has("gui_vimr")
+  set termguicolors
+endif
 
 " Use Powerline font
 "set guifont=Menlo\ for\ Powerline:h13
 " ...or the regular Menlo
 "set guifont=Menlo:h12
-set guifont=Fira\ Mono\ for\ Powerline:h13
+if has("gui_running")
+  set guifont=Fira\ Mono\ for\ Powerline:h13
+endif
 
 " Default to 4px of space in between lines
 set linespace=4
 
-" Use Powerline font characters for airline.vim
-let g:airline_powerline_fonts=1
-" Airline theme
-let g:airline_theme='base16'
-
-" Adjust Airline's section hiding
-let g:airline#extensions#default#section_truncate_width = {
-      \ 'y': 88,
+let g:lightline = {
+      \ 'colorscheme': 'Tomorrow_Night',
       \ }
+
+" Use Powerline font characters for airline.vim
+" let g:airline_powerline_fonts=1
+" " Airline theme
+" let g:airline_theme='base16'
+" 
+" " Adjust Airline's section hiding
+" let g:airline#extensions#default#section_truncate_width = {
+"       \ 'y': 88,
+"       \ }
 " Turn off warnings
 let g:airline_section_warning = ''
+
+let g:splitjoin_split_mapping = ''
+nmap gK :SplitjoinSplit<cr>
+let g:splitjoin_trailing_comma = 1
+
+"let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#buffer_nr_show = 1
+"
+"func! Buflisted()
+"  return filter(range(1, bufnr('$')), 'buflisted(v:val)')
+"endfunc
+"
+"set hidden
+"nnoremap <leader>bk :BW<CR>
+"
+"func! Key_leader_bufnum(num)
+"    let l:buffers = Buflisted()
+"    let l:input = a:num . ""
+"
+"    while 1
+"
+"        let l:cnt = 0
+"        let l:i=0
+"        " count matches
+"        while l:i<len(l:buffers)
+"            let l:bn = l:buffers[l:i] . ""
+"            if l:input==l:bn[0:len(l:input)-1]
+"                let l:cnt+=1
+"            endif
+"            let l:i+=1
+"        endwhile
+"
+"        " no matches
+"        if l:cnt==0 && len(l:input)>0
+"            echo "no buffer [" . l:input . "]"
+"            return ''
+"        elseif l:cnt==1
+"            return ":b " . l:input . "\<CR>"
+"        endif
+"
+"        echo ":b " . l:input
+"
+"        let l:n = getchar()
+"
+"        if l:n==char2nr("\<BS>") ||  l:n==char2nr("\<C-h>")
+"            " delete one word
+"            if len(l:input)>=2
+"                let l:input = l:input[0:len(l:input)-2]
+"            else
+"                let l:input = ""
+"            endif
+"        elseif l:n==char2nr("\<CR>") || (l:n<char2nr('0') || l:n>char2nr('9'))
+"            return ":b " . l:input . "\<CR>"
+"        else
+"            let l:input = l:input . nr2char(l:n)
+"        endif
+"
+"        let g:n = l:n
+"
+"    endwhile
+"endfunc
+"nnoremap <expr> <Leader>1 Key_leader_bufnum(1)
+"nnoremap <expr> <Leader>2 Key_leader_bufnum(2)
+"nnoremap <expr> <Leader>3 Key_leader_bufnum(3)
+"nnoremap <expr> <Leader>4 Key_leader_bufnum(4)
+"nnoremap <expr> <Leader>5 Key_leader_bufnum(5)
+"nnoremap <expr> <Leader>6 Key_leader_bufnum(6)
+"nnoremap <expr> <Leader>7 Key_leader_bufnum(7)
+"nnoremap <expr> <Leader>8 Key_leader_bufnum(8)
+"nnoremap <expr> <Leader>9 Key_leader_bufnum(9)
+
+
 
 " Colorschemes
 let g:enable_bold_font = 0
@@ -647,7 +806,7 @@ set background=dark
 colorscheme material_edit
 
 " Terminal-specific settings
-if !has("gui_running")
+if !has("gui_running") && !has("gui_vimr") && !exists("g:gui_oni")
   colorscheme hybrid_material
   let g:hybrid_use_iTerm_colors = 1
   set t_Co=256
@@ -658,6 +817,194 @@ if !has("gui_running")
   "set nocursorcolumn      " Don't paint cursor column
   "set lazyredraw          " Wait to redraw
   set ttimeout
-  set ttimeoutlen=250
+  " disable escape delay
+  set ttimeoutlen=0
   set notimeout
+  " no visual bell
+  set noerrorbells visualbell t_vb=
 endif
+
+function! ResizeFontAndWindow(dy)
+  let l:fontsize = matchstr(&guifont, '\d\+$')
+
+  let l:curheight = l:fontsize * &lines
+  let l:curwidth = l:fontsize * (6.0/5.0) * &columns
+
+  let l:newfontheight = l:fontsize+a:dy
+  let l:newfontwidth = l:newfontheight * (6.0/5.0)
+
+  let &guifont = substitute(&guifont, '\d\+$', l:newfontheight, '')
+
+  let l:approxlines = curheight * 1.0 / newfontheight
+  let l:approxcolumns = curwidth / newfontwidth
+
+  if a:dy > 0
+    let l:approxlines = ceil(l:approxlines)
+    let l:approxcolumns = ceil(l:approxcolumns)
+  else
+    let l:approxlines = floor(l:approxlines)
+    let l:approxcolumns = floor(l:approxcolumns)
+  endif
+
+  let &lines = float2nr(l:approxlines)
+  let &columns = float2nr(l:approxcolumns)
+endfunction
+
+function! IncrementFont()
+  call ResizeFontAndWindow(1)
+endfunction
+
+function! DecrementFont()
+  call ResizeFontAndWindow(-1)
+endfunction
+
+map <D-=> :call IncrementFont()<cr>
+map <D--> :call DecrementFont()<cr>
+
+if has('nvim')
+  tnoremap <esc> <C-\><C-N>
+else
+  " terminal clipboard paste via ctrl-V
+  tnoremap <C-v> <C-w>"+
+
+  " terminal normal mode via ctrl-N
+  tnoremap <C-n> <C-w>N
+  " terminal normal mode via esc
+  tnoremap <esc> <C-w>N
+  " terminal normal mode via cmd-w
+  tnoremap <D-w> <C-w>N
+
+  " window nav from terminal via command keys
+  tnoremap <D-h> <C-w>h
+  tnoremap <D-j> <C-w>j
+  tnoremap <D-k> <C-w>k
+  tnoremap <D-l> <C-w>l
+endif
+
+inoremap P:: Private::
+inoremap PM:: Private::Model::
+inoremap OPF:: Opus::PaymentFlows::
+inoremap PMI:: Private::Model::PaymentIntent
+inoremap PIS:: Private::Model::PaymentIntentSnapshot
+
+let g:bclose_multiple = 0
+nnoremap <silent> <D-d> :Bclose<cr>
+if has('nvim')
+  tnoremap <D-d> <C-\><C-N>:b#\|bd! #<cr>
+else
+  tnoremap <D-d> <c-w>:b#\|bd! #<cr>
+endif
+
+nnoremap <D-[> :bp!<cr>
+nnoremap <D-]> :bn!<cr>
+nnoremap <C-tab> :bn!<cr>
+nnoremap <C-S-Tab> :bp!<cr>
+
+if has('nvim')
+  tnoremap <D-[> <c-\><c-N>:bp<cr>
+  tnoremap <D-]> <c-\><c-N>:bn<cr>
+else 
+  tnoremap <D-[> <c-w>:bp!<cr>
+  tnoremap <D-]> <c-w>:bn!<cr>
+  tnoremap <C-tab> :bn!<cr>
+  tnoremap <C-S-Tab> :bp!<cr>
+endif
+
+nnoremap <D-up> <c-w>+
+nnoremap <D-down> <c-w>-
+nnoremap <D-left> <c-w><
+nnoremap <D-right> <c-w>>
+
+if has('nvim')
+  tnoremap <D-up> <c-\><c-N><c-w>+i
+  tnoremap <D-down> <c-\><c-N><c-w>-i
+  tnoremap <D-left> <c-\><c-N><c-w><i
+  tnoremap <D-right> <c-\><c-N><c-w>>i
+else
+  tnoremap <D-up> <c-w>+
+  tnoremap <D-down> <c-w>-
+  tnoremap <D-left> <c-w><
+  tnoremap <D-right> <c-w>>
+endif
+
+let g:buftabline_numbers=2
+nmap <D-1> <Plug>BufTabLine.Go(1)
+nmap <D-2> <Plug>BufTabLine.Go(2)
+nmap <D-3> <Plug>BufTabLine.Go(3)
+nmap <D-4> <Plug>BufTabLine.Go(4)
+nmap <D-5> <Plug>BufTabLine.Go(5)
+nmap <D-6> <Plug>BufTabLine.Go(6)
+nmap <D-7> <Plug>BufTabLine.Go(7)
+nmap <D-8> <Plug>BufTabLine.Go(8)
+nmap <D-9> <Plug>BufTabLine.Go(9)
+nmap <D-0> <Plug>BufTabLine.Go(10)
+
+tmap <D-1> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(1)"<cr>
+tmap <D-2> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(2)"<cr>
+tmap <D-3> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(3)"<cr>
+tmap <D-4> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(4)"<cr>
+tmap <D-5> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(5)"<cr>
+tmap <D-6> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(6)"<cr>
+tmap <D-7> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(7)"<cr>
+tmap <D-8> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(8)"<cr>
+tmap <D-9> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(9)"<cr>
+tmap <D-0> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(10)"<cr>
+
+"if has('nvim')
+  nnoremap <D-e> :Topen<cr>
+  vnoremap <leader>r :<c-U>execute ":T pt" expand('%') "-l" line(".")<cr>
+  nnoremap <leader>r :execute ":T pt" expand('%')<cr>
+  vnoremap <D-r> :<c-U>execute ":T pt" expand('%') "-l" line(".")<cr>
+  nnoremap <D-r> :execute ":T pt" expand('%')<cr>
+"else
+  " include line number in visual mode
+"  nnoremap <leader>r :T pt % .<cr>
+  "nnoremap <leader>r :call term_sendkeys("zsh", "pt " . expand("%") . "\<lt>cr>")<cr><esc>
+"end
+
+set nohidden
+set bufhidden="delete"
+
+if has('gui_macvim') 
+  unmenu File.New\ Tab
+  nmap <silent> <D-t> :setlocal bufhidden=hide<cr>:enew<cr>
+  tmap <silent> <D-t> <c-w>:enew<cr>
+  autocmd BufReadPost * set bufhidden=delete
+  nmap <silent> <D-k> :setlocal bufhidden=hide<cr>
+
+  au BufWinEnter * if &buftype == 'terminal' | setlocal bufhidden=hide | endif
+
+  " see ~/.gvimrc
+  " ported from menu.vim
+  nnoremap <D-v> "+gP
+  cnoremap <D-v> <C-R>+
+  exe 'vnoremap <script> <D-v> ' . paste#paste_cmd['v']
+  exe 'inoremap <script> <D-v> ' . paste#paste_cmd['i']
+  tmap <D-v> <c-w>"+
+
+  unmenu Tools.List\ Errors
+  nmap <silent> <D-l> :setlocal bufhidden=""<cr>
+
+  unmenu File.Print
+  nnoremap <D-p> :CtrlPBuffer<cr>
+
+  " command-K to clear
+  tmap <D-k> <C-c>clear<cr> 
+
+  " ,p to search for paths
+  " TODO: figure out how to escape this
+  "nmap <leader>p :?[A-Za-z_./]\+\.[A-Za-z]\+<cr>
+  "tmap <leader>p <C-w><esc>:?[A-Za-z_./]\+\.[A-Za-z]\+<cr>
+endif
+
+" for fugitive.vim :Gstatus and :Gcommit
+set previewheight=20
+
+" fzf.vim
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column -g "!thrift" --line-number --no-heading --color=never '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
+

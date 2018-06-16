@@ -53,7 +53,7 @@
 "}}}
 " Initialisation:"{{{
 " ----------------------------------------------------------------------------
-if !has("gui_running") && &t_Co < 256
+if !(has("gui_running") || exists("g:gui_oni")) && &t_Co < 256
   finish
 endif
 
@@ -81,7 +81,7 @@ let colors_name = "material_edit"
 "}}}
 " GUI And Cterm Palettes:"{{{
 " ----------------------------------------------------------------------------
-if has("gui_running") || ($NVIM_TUI_ENABLE_TRUE_COLOR && has("nvim"))
+if has("gui_running") || exists("g:gui_oni") || ($NVIM_TUI_ENABLE_TRUE_COLOR && has("nvim")) || has("gui_vimr")
   let s:vmode      = "gui"
   let s:background = "#263238"
   let s:foreground = "#c5c8c6"
@@ -105,6 +105,70 @@ if has("gui_running") || ($NVIM_TUI_ENABLE_TRUE_COLOR && has("nvim"))
   let s:darkcyan   = "#005f5f"
   let s:darkred    = "#5f0000"
   let s:darkpurple = "#5f005f"
+
+  " Neovim Terminal Emulator {{{
+  " Neovim embeds a terminal emulator. Since it "could" run independently of a
+  " host terminal emulator, it behaves as such. Thus, we need to define the
+  " color scheme here just like we would in iTerm2 or xterm etc.
+
+  " let g:terminal_color_0 = s:comment
+  " let g:terminal_color_1 = s:red
+  " let g:terminal_color_2 = s:green
+  " let g:terminal_color_3 = s:yellow
+  " let g:terminal_color_4 = s:blue
+  " let g:terminal_color_5 = s:magenta
+  " let g:terminal_color_6 = s:cyan
+  " let g:terminal_color_7 = s:line
+  " let g:terminal_color_8 = s:foreground
+  " let g:terminal_color_9 = s:gui_orange
+  " let g:terminal_color_10 = s:gui_base01
+  " let g:terminal_color_11 = s:gui_base00
+  " let g:terminal_color_12 = s:gui_base0
+  " let g:terminal_color_13 = s:gui_violet
+  " let g:terminal_color_14 = s:gui_base1
+  " let g:terminal_color_15 = s:gui_base3
+
+  " if &background == "light"
+  "   let g:terminal_color_8 = s:gui_base03
+  "   let g:terminal_color_15 = s:gui_base1
+  " endif
+
+  let g:terminal_color_0 = "#546e7a"
+  let g:terminal_color_1 = "#ff5252"
+  let g:terminal_color_2 = "#69f0ae"
+  let g:terminal_color_3 = "#ffd740"
+  let g:terminal_color_4 = "#40c4ff"
+  let g:terminal_color_5 = "#ff4081"
+  let g:terminal_color_6 = "#64fcda"
+  let g:terminal_color_7 = "#ffffff"
+  let g:terminal_color_8 = "#b0bec5"
+  let g:terminal_color_9 = "#ff8a80"
+  let g:terminal_color_10 = "#b9f6ca"
+  let g:terminal_color_11 = "#ffe57f"
+  let g:terminal_color_12 = "#80d8ff"
+  let g:terminal_color_13 = "#ff80ab"
+  let g:terminal_color_14 = "#a7fdeb"
+  let g:terminal_color_15 = "#ffffff"
+
+
+  let g:terminal_ansi_colors = [
+    \ "#546e7a",
+    \ "#ff5252",
+    \ "#69f0ae",
+    \ "#ffd740",
+    \ "#40c4ff",
+    \ "#ff4081",
+    \ "#64fcda",
+    \ "#ffffff",
+    \ "#b0bec5",
+    \ "#ff8a80",
+    \ "#b9f6ca",
+    \ "#ffe57f",
+    \ "#80d8ff",
+    \ "#ff80ab",
+    \ "#a7fdeb",
+    \ "#ffffff"
+  \ ]
 else
   let s:vmode      = "cterm"
   let s:background = "234"
@@ -237,7 +301,7 @@ exe "let s:fmt_stnd      = ' ".s:vmode."=NONE".s:s.      " term=NONE".s:s    ."'
 exe "let s:fmt_revr      = ' ".s:vmode."=NONE".s:r.      " term=NONE".s:r    ."'"
 exe "let s:fmt_revb      = ' ".s:vmode."=NONE".s:r.s:b.  " term=NONE".s:r.s:b."'"
 
-if has("gui_running")
+if (has("gui_running") || exists("g:gui_oni"))
   exe "let s:sp_none       = ' guisp=".s:none      ."'"
   exe "let s:sp_foreground = ' guisp=".s:foreground."'"
   exe "let s:sp_background = ' guisp=".s:background."'"

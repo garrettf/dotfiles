@@ -20,7 +20,7 @@ alias gd="git diff"
 alias gdc="git diff --cached"
 alias glp="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gl="git log"
-alias gpfo="git push -f origin"
+alias gpfo="git push --force-with-lease origin"
 alias gpso="git push --set-upstream origin"
 
 alias bi="bundle install"
@@ -28,8 +28,34 @@ alias be="bundle exec"
 alias rs="rspec"
 alias rss="rspec ."
 
+# corrects to "yes" apparently
+alias jest="nocorrect jest"
+
 alias mtab="open -a MacVim"
 
 alias iossim="open /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app"
 
 alias ss="cd /Volumes/Sidecar/staging"
+
+ag-replace() {
+  ag -l $1 | xargs perl -pi.bak -e "s/$1/$2/g"
+}
+
+gdm() {
+  git diff `git merge-base --fork-point master` $@
+}
+
+alias gdmc="gdm --cached"
+alias stripe-curl="curl --unix-socket ~/.stripeproxy"
+
+shorten() {
+  if [ $# -eq 0 ]; then
+    echo "url=`pbpaste`" | stripe-curl http://go.northwest.corp.stripe.com/ -d name="" -d @- | pup '#link attr{value}' | tee >(pbcopy)
+  else
+    stripe-curl http://go.northwest.corp.stripe.com/ -d name="" -d $1 | pup '#link attr{value}' | tee >(pbcopy)
+  fi
+}
+
+gfetch-branch() {
+  git fetch origin +$1:$1
+}

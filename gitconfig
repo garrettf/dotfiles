@@ -12,6 +12,12 @@
 	default = simple
 [alias]
 	co = checkout
+
+  files-since = "!git diff --name-only $(git merge-base HEAD $1) | xargs ls 2>/dev/null && :"
+  files-since-master = "!git files-since origin/master && :"
+
+  minimal-diff-with = "! git files-since $1 | xargs git diff -w $(git merge-base HEAD $1)..HEAD && :"
+  minimal-diff-with-master = "! git minimal-diff-with origin/master && :" 
 [diff]
     tool = mvimdiff
 [difftool "mvimdiff"]

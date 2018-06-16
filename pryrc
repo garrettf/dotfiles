@@ -2,10 +2,18 @@
 module Enumerable
   def group_count
     counts = {}
-    self.each do |i|
-      group = yield(i)
-      counts[group] = (counts[group] || 0) + 1
+    if block_given?
+      self.each do |i|
+        group = yield(i)
+        counts[group] = (counts[group] || 0) + 1
+      end
+    else
+      self.each do |i|
+        group = i
+        counts[group] = (counts[group] || 0) + 1
+      end
     end
+
     counts
   end
 
