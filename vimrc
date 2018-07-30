@@ -62,7 +62,8 @@ call plug#begin(expand('~/.vim/bundle/'))
 
   Plug 'qpkorr/vim-bufkill'
 
-  Plug 'AndrewRadev/splitjoin.vim'
+  "Plug 'AndrewRadev/splitjoin.vim'
+  Plug 'FooSoft/vim-argwrap'
 
   " Tool for lining up text
   "    https://github.com/godlygeek/tabular
@@ -72,7 +73,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   "   Use :Start[!] or :Dispatch[!] or :Make
   "      https://github.com/tpope/vim-dispatch
   "Plug 'tpope/vim-dispatch'
-
+  Plug 'skywind3000/asyncrun.vim'
 
   " Comment toggling
   "Plug 'tpope/vim-commentary'
@@ -130,7 +131,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   "Plug 'tpope/vim-rails'
   "Plug 'ngmy/vim-rubocop'
   "Plug 'Keithbsmiley/rspec.vim', { 'for': 'ruby' }
-  "Plug 'leafo/moonscript-vim', { 'for': 'moon' }
+  Plug 'leafo/moonscript-vim', { 'for': 'moon' }
 
 call plug#end()
 
@@ -602,7 +603,27 @@ nnoremap <leader>c :let @+ = expand("%")<CR>
 vnoremap <leader>c :<BS><BS><BS><BS><BS>let @+ = expand("%") . " -l " . line(".")<CR>
 
 " Open tag under cursor in new tab
-nnoremap <leader>w <C-w><C-]><C-w>T
+"nnoremap <leader>w <C-w><C-]><C-w>T
+
+nnoremap <silent> <leader>w :ArgWrap<CR>
+let g:argwrap_tail_comma = 1
+autocmd FileType moon let g:argwrap_tail_comma = 0
+
+function! s:open_quickfix_on_error()
+  if g:asyncrun_code != 0
+    copen 4
+    execute "normal \<c-w>p"
+  else
+    cclose
+  endif
+endfunction
+
+augroup CompileMoon
+  autocmd FileType moon
+    \ autocmd! CompileMoon BufWritePost <buffer> :AsyncRun moonc '%'
+  autocmd FileType moon
+    \ autocmd! User AsyncRunStop :call s:open_quickfix_on_error()
+augroup END
 
 " Change filetype
 nnoremap <leader>ft :set ft=
