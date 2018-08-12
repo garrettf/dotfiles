@@ -11,4 +11,3 @@ unmenu Edit.Paste
 "menu Edit.Paste <Nop>
 amenu Edit.Paste<tab>"+gP <Nop>
 macm Edit.Paste<Tab>"+gP action=paste:
-

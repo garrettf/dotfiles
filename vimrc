@@ -15,7 +15,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   "Plug 'itchyny/lightline.vim'
 
   " Fuzzy search for directories, buffers, and MRU
-  Plug 'kien/ctrlp.vim'
+  "Plug 'kien/ctrlp.vim'
   " 'faster' matching algorithm
   Plug 'JazzCore/ctrlp-cmatcher'
   Plug 'nixprime/cpsm'
@@ -62,7 +62,8 @@ call plug#begin(expand('~/.vim/bundle/'))
 
   Plug 'qpkorr/vim-bufkill'
 
-  Plug 'AndrewRadev/splitjoin.vim'
+  "Plug 'AndrewRadev/splitjoin.vim'
+  Plug 'FooSoft/vim-argwrap'
 
   " Tool for lining up text
   "    https://github.com/godlygeek/tabular
@@ -148,6 +149,9 @@ set expandtab
 
 " Automatically indent based on context
 set autoindent
+
+" When joining lines via J, only add one space after punctuation instead of two
+set nojoinspaces
 
 " ------------------------------------------------
 "     Autocommands
@@ -601,8 +605,10 @@ nnoremap <leader>c :let @+ = expand("%")<CR>
 " include line number in visual mode
 vnoremap <leader>c :<BS><BS><BS><BS><BS>let @+ = expand("%") . " -l " . line(".")<CR>
 
-" Open tag under cursor in new tab
-nnoremap <leader>w <C-w><C-]><C-w>T
+
+" Wrap/unwrap arguments onto multiple lines
+nnoremap <silent> <leader>w :ArgWrap<CR>
+let g:argwrap_tail_comma = 1
 
 " Change filetype
 nnoremap <leader>ft :set ft=
@@ -973,6 +979,7 @@ if has('gui_macvim')
   nmap <silent> <D-k> :setlocal bufhidden=hide<cr>
 
   au BufWinEnter * if &buftype == 'terminal' | setlocal bufhidden=hide | endif
+  au TerminalOpen * setlocal nonumber | setlocal bufhidden=hide
 
   " see ~/.gvimrc
   " ported from menu.vim
@@ -986,7 +993,7 @@ if has('gui_macvim')
   nmap <silent> <D-l> :setlocal bufhidden=""<cr>
 
   unmenu File.Print
-  nnoremap <D-p> :CtrlPBuffer<cr>
+  nnoremap <silent> <D-p> :Buffer<cr>
 
   " command-K to clear
   tmap <D-k> <C-c>clear<cr> 
@@ -1008,3 +1015,7 @@ command! -bang -nargs=* Rg
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
 
+" experiment: use fzf instead of ctrlp
+nnoremap <c-p> :Files<cr>
+
+nnoremap <leader>fdm :set fdm=
