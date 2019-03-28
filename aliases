@@ -48,6 +48,43 @@ gdm() {
 alias gdmc="gdm --cached"
 alias stripe-curl="curl --unix-socket ~/.stripeproxy"
 
+
+pay-server-class() {
+  awk -F'\t' '{
+    if( ( ($4 == "c") || ($4 == "m")) && ($2 !~ "/?test/")) { 
+      if($4 == "m") {
+        gsub("class", "\033[0;32mmodule", $5);
+      } 
+      gsub(":", " ", $5); 
+      gsub("\\.", "::", $5); 
+      print "\033[0;33m" $5 "::" $1 ".\t\033[0;35m" $2 "\t" $3 
+    }
+  }' tags | fzf --ansi -d "\t" -n 1 | ruby -lne 'print $_.match(/([^ .]+)\./)[1]'
+}
+
+pay-server-symbol() {
+  # skip first two lines
+  awk -F'\t' 'NR > 2 {
+    if($2 !~ "/?test/") { 
+      gsub("class:", "", $5); 
+      gsub("\\.", "::", $5); 
+      if ($4 == "f") {
+        delim = "#"
+      } else if ($4 == "F") {
+        delim = "."
+      } else {
+        delim = "::"
+      }
+      print "\033[0;33m" $5 delim $1 ".\t\033[0;35m" $2 "\t" $3 
+    }
+  }' tags | fzf --ansi -d "\t" -n 1 | ruby -lne 'print $_.match(/([^ .]+)\./)[1]'
+}
+
+alias pay-server-class-clip="pay-server-class | tr -d '\n' | pbcopy"
+paytags() {
+  find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort > tags
+}
+
 shorten() {
   if [ $# -eq 0 ]; then
     echo "url=`pbpaste`" | stripe-curl http://go.northwest.corp.stripe.com/ -d name="" -d @- | pup '#link attr{value}' | tee >(pbcopy)

@@ -24,8 +24,12 @@ call plug#begin(expand('~/.vim/bundle/'))
   Plug 'ap/vim-buftabline'
   Plug 'chrismccord/bclose.vim'
 
+  Plug 'idbrii/vim-tagimposter'
+
   " Smart tab completion with <Tab>
-  Plug 'ervandew/supertab'
+  if !exists('veonim')
+    Plug 'ervandew/supertab'
+  end
 
   " Directory navigation window.
   Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
@@ -64,6 +68,12 @@ call plug#begin(expand('~/.vim/bundle/'))
 
   "Plug 'AndrewRadev/splitjoin.vim'
   Plug 'FooSoft/vim-argwrap'
+
+  " FUTURE GARRETT: replace with 'garrettf/fzf-tags' fork
+  Plug 'zackhsi/fzf-tags'
+  Plug 'joshdick/onedark.vim'
+
+  Plug 'kana/vim-submode'
 
   " Tool for lining up text
   "    https://github.com/godlygeek/tabular
@@ -177,8 +187,8 @@ let g:ruby_path = []
 
 let g:ale_linters = {
 \   'ruby': ['rubocop'],
-\   'javascript': ['flow', 'prettier'],
-\   'jsx': ['flow', 'prettier'],
+\   'javascript': ['flow', 'prettier', 'eslint'],
+\   'jsx': ['flow', 'prettier', 'eslint'],
 \}
 
 let g:ale_fixers = {
@@ -317,9 +327,9 @@ let g:tex_flavor='latex'
 let g:Tex_AutoFolding = 0
 
 " TODO switch to fzf.vim or ack.vim
-let g:ag_prg="rg --vimgrep"
+let g:ag_prg="rg --vimgrep -g '!openapi'"
 let g:ag_autoclose=1
-let g:ag_qhandler="botright copen 15"
+let g:ag_qhandler="belowright copen 15"
 
 let g:ctrlp_use_caching = 1
 let g:ctrlp_max_files=20000
@@ -354,11 +364,14 @@ let g:github_enterprise_urls = ['https://git.corp.stripe.com']
 " Goyo
 let g:goyo_margin_top = 0
 let g:goyo_margin_bottom = 0
+let g:goyo_height = 100
 function! s:goyo_enter()
   set nocursorline
+  set showtabline=0
 endfunction
 
 function! s:goyo_leave()
+  set showtabline=2
 endfunction
 
 autocmd! User GoyoEnter
@@ -567,7 +580,7 @@ vnoremap ∆ :m '>+1<CR>gv=gv
 vnoremap ˚ :m '<-2<CR>gv=gv
 
 " Begin ctag search with <leader>t
-nnoremap <leader>t :tag 
+nnoremap <leader>t :Tag 
 
 " Map ,, in insert mode to paste from default register.
 imap ,, <C-r>0
@@ -591,11 +604,14 @@ vnoremap <D-r> "hy:%s/<C-r>h//<left>
 " <leader>g toggles Goyo's zen mode
 nnoremap <Leader>g :Goyo<CR>
 
-" Save session with ,n
-nnoremap <leader>n :mksession ~/.vim/session/
+" Save (keep) session with ,k
+nnoremap <leader>k :mksession ~/.vim/session/
 
-" Set filetype to markdown with ,m
-nnoremap <leader>m :set filetype=markdown<CR>
+function! Notemode()
+  colorscheme solarized8_light
+  set filetype=markdown
+endfunc
+nnoremap <leader>m :call Notemode()<cr>
 
 " Do my hacky markdown mail dance with ,a
 nnoremap <leader>a :set filetype=markdown<CR>:set cc=73<CR>:set tw=72<CR>
@@ -695,27 +711,30 @@ endif
 " ...or the regular Menlo
 "set guifont=Menlo:h12
 if has("gui_running")
-  set guifont=Fira\ Mono\ for\ Powerline:h13
+  set guifont=Fira\ Mono:h13
+  " set guifont=Fira\ Mono\ for\ Powerline:h13
+  "set guifont=Fira\ Code:h13
+  "set linespace=2
+  "set guifont=Menlo:h13
+  set linespace=3
 endif
 
-" Default to 4px of space in between lines
-set linespace=4
+"Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
+"If you're using tmux version 2.2 or later, you can remove the outermost $TMUX check and use tmux's 24-bit color support
+"(see < http://sunaku.github.io/tmux-24bit-color.html#usage > for more information.)
+if (empty($TMUX))
+  if (has("nvim"))
+    "For Neovim 0.1.3 and 0.1.4 < https://github.com/neovim/neovim/pull/2198 >
+    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+  endif
+  "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
+  "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
+  " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
+  if (has("termguicolors"))
+    set termguicolors
+  endif
+endif
 
-let g:lightline = {
-      \ 'colorscheme': 'Tomorrow_Night',
-      \ }
-
-" Use Powerline font characters for airline.vim
-" let g:airline_powerline_fonts=1
-" " Airline theme
-" let g:airline_theme='base16'
-" 
-" " Adjust Airline's section hiding
-" let g:airline#extensions#default#section_truncate_width = {
-"       \ 'y': 88,
-"       \ }
-" Turn off warnings
-let g:airline_section_warning = ''
 
 let g:splitjoin_split_mapping = ''
 nmap gK :SplitjoinSplit<cr>
@@ -808,12 +827,19 @@ let g:enable_bold_font = 0
 "colorscheme material-theme
 
 " MATERIAL
-set background=dark
-colorscheme material_edit
+" set background=dark
+"colorscheme onedark
+if has('gui_running')
+  colorscheme material_edit
+elseif exists('veonim')
+  colorscheme material_edit
+else
+  colorscheme onedark
+end
 
 " Terminal-specific settings
 if !has("gui_running") && !has("gui_vimr") && !exists("g:gui_oni")
-  colorscheme hybrid_material
+  "colorscheme hybrid_material
   let g:hybrid_use_iTerm_colors = 1
   set t_Co=256
   let g:hybrid_use_Xresources = 0
@@ -968,18 +994,26 @@ tmap <D-0> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(10)"<cr>
   "nnoremap <leader>r :call term_sendkeys("zsh", "pt " . expand("%") . "\<lt>cr>")<cr><esc>
 "end
 
-set nohidden
-set bufhidden="delete"
+" set nohidden
+" when set to "delete", this makes buffers disappear by default
+" when set to "hide", this makes them stay open in the background (and on the
+" tab bar) -- use <D-d> if you want to navigate away AND delete the buffer
+set bufhidden=hide
+set hidden
 
-if has('gui_macvim') 
+if has('gui_macvim') || exists('veonim')
   unmenu File.New\ Tab
   nmap <silent> <D-t> :setlocal bufhidden=hide<cr>:enew<cr>
   tmap <silent> <D-t> <c-w>:enew<cr>
-  autocmd BufReadPost * set bufhidden=delete
+  "autocmd BufReadPost * set bufhidden=delete
   nmap <silent> <D-k> :setlocal bufhidden=hide<cr>
 
   au BufWinEnter * if &buftype == 'terminal' | setlocal bufhidden=hide | endif
-  au TerminalOpen * setlocal nonumber | setlocal bufhidden=hide
+  if has('nvim') 
+    au TermOpen * setlocal nonumber | setlocal bufhidden=hide
+  else
+    au TerminalOpen * setlocal nonumber | setlocal bufhidden=hide
+  end
 
   " see ~/.gvimrc
   " ported from menu.vim
@@ -1002,6 +1036,9 @@ if has('gui_macvim')
   " TODO: figure out how to escape this
   "nmap <leader>p :?[A-Za-z_./]\+\.[A-Za-z]\+<cr>
   "tmap <leader>p <C-w><esc>:?[A-Za-z_./]\+\.[A-Za-z]\+<cr>
+
+  autocmd VimResized * redraw!
+  autocmd FocusLost * redraw!
 endif
 
 " for fugitive.vim :Gstatus and :Gcommit
@@ -1015,7 +1052,101 @@ command! -bang -nargs=* Rg
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
 
+function! s:tags_sink(line)
+  let parts = split(a:line, '\t')
+  let filename = parts[1]
+  echom filename
+  let excmd = parts[2]
+  echom excmd
+  call tagimposter#pushtag(expand("<cword>"))
+  execute 'silent e' filename
+  execute excmd
+endfunction
+
+function! s:extract_name(line)
+  let parts = split(a:line, '\t')
+  let class_parts = split(parts[0], ' ')
+  let name_with_period = class_parts[1]
+  let name = name_with_period[:-2]
+  return name
+endfunction
+
+function! s:insert_tag_sink(line)
+  execute ':normal! a' . s:extract_name(a:line)
+endfunction
+
+function! s:insert_terminal_tag_sink(line)
+  call term_sendkeys('', s:extract_name(a:line))
+endfunction
+
+command! -bar Symbols call fzf#run({
+      \ 'source': "awk -F'\\t' 'NR > 2 { if($2 !~ \"/?test/\") { gsub(\"class:\", \"\", $5); gsub(\"\\\\.\", \"::\", $5); if ($4 == \"f\") { delim = \"#\" } else if ($4 == \"F\") { delim = \".\" } else { delim = \"::\" } print \"\\033[0;33m\" $5 delim $1 \".\\t\\033[0;35m\" $2 \"\\t\" $3 } }' " . join(tagfiles()),
+      \ 'sink':    function('s:tags_sink'),
+      \ 'options': '--ansi --delimiter="\t" --nth=1',
+      \ 'down': '40%'
+\ })
+
+command! -bar Tags call fzf#run({
+      \ 'source': "awk -F'\\t' '{if((($4 == \"c\") || ($4 == \"m\")) && ($2 !~ \"/?test/\")) { if($4 == \"m\") { gsub(\"class\", \"\\\e[0;32mmodule\", $5); } gsub(\":\", \" \", $5); gsub(\"\\\\.\", \"::\", $5); print \"\\\e[0;33m\" $5  \"::\" $1 \".\\t\e[0;35m\" $2 \"\\t\" $3 }}' " . join(tagfiles()),
+      \ 'sink':    function('s:tags_sink'),
+      \ 'options': '--ansi --delimiter="\t" --nth=1',
+      \ 'down': '40%'
+\ })
+
+command! -bar InsertTag call fzf#run({
+      \ 'source': "awk -F'\\t' '{if((($4 == \"c\") || ($4 == \"m\")) && ($2 !~ \"/?test/\")) { if($4 == \"m\") { gsub(\"class\", \"\\\e[0;32mmodule\", $5); } gsub(\":\", \" \", $5); gsub(\"\\\\.\", \"::\", $5); print \"\\\e[0;33m\" $5  \"::\" $1 \".\\t\e[0;35m\" $2 \"\\t\" $3 }}' " . join(tagfiles()),
+      \ 'sink':    function('s:insert_tag_sink'),
+      \ 'options': '--ansi --delimiter="\t" --nth=1',
+      \ 'down': '40%'
+\ })
+
+
+command! -bar InsertTagWithTest call fzf#run({
+      \ 'source': "awk -F'\\t' '{if(($4 == \"c\") || ($4 == \"m\")) { if($4 == \"m\") { gsub(\"class\", \"\\\e[0;32mmodule\", $5); } gsub(\":\", \" \", $5); gsub(\"\\\\.\", \"::\", $5); print \"\\\e[0;33m\" $5  \"::\" $1 \".\\t\e[0;35m\" $2 \"\\t\" $3 }}' " . join(tagfiles()),
+      \ 'sink':    function('s:insert_tag_sink'),
+      \ 'options': '--ansi --delimiter="\t" --nth=1',
+      \ 'down': '40%'
+\ })
+
+command! -bar InsertTerminalTag call fzf#run({
+      \ 'source': "awk -F'\\t' '{if((($4 == \"c\") || ($4 == \"m\")) && ($2 !~ \"/?test/\")) { if($4 == \"m\") { gsub(\"class\", \"\\\e[0;32mmodule\", $5); } gsub(\":\", \" \", $5); gsub(\"\\\\.\", \"::\", $5); print \"\\\e[0;33m\" $5  \"::\" $1 \".\\t\e[0;35m\" $2 \"\\t\" $3 }}' " . join(tagfiles()),
+      \ 'sink':    function('s:insert_terminal_tag_sink'),
+      \ 'options': '--ansi --delimiter="\t" --nth=1',
+      \ 'down': '40%'
+\ })
+
+command! -nargs=1 -complete=tag Tag call fzf_tags#Find(<q-args>)
+
 " experiment: use fzf instead of ctrlp
 nnoremap <c-p> :Files<cr>
+nnoremap <d-P> :Tags<cr>
+nnoremap <S-D-p> :Tags<cr>
+nnoremap <d-e> :Symbols<cr>
+
+nnoremap <d-i> :InsertTag<cr>
+nnoremap <d-I> :InsertTagWithTest<cr>
+inoremap <d-i> <esc>:InsertTag<cr>
+inoremap <d-I> <esc>:InsertTagWithTest<cr>
+tnoremap <d-i> <c-w>:InsertTerminalTag<cr>
 
 nnoremap <leader>fdm :set fdm=
+
+" EXPERIMENT
+" set scrolloff=99
+
+nmap <C-]> <Plug>(fzf_tags)
+
+call submode#enter_with('windowresizing', 'n', '', 'F')
+call submode#leave_with('windowresizing', 'n', '', '<Esc>')
+call submode#map('windowresizing', 'n', '', 'h', '<c-w><')
+call submode#map('windowresizing', 'n', '', 'j', '<c-w>-')
+call submode#map('windowresizing', 'n', '', 'k', '<c-w>+')
+call submode#map('windowresizing', 'n', '', 'l', '<c-w>>')
+
+call submode#map('windowresizing', 'n', '', 'H', '<c-w>11<')
+call submode#map('windowresizing', 'n', '', 'J', '<c-w>5-')
+call submode#map('windowresizing', 'n', '', 'K', '<c-w>5+')
+call submode#map('windowresizing', 'n', '', 'L', '<c-w>10>')
+
+" A-] to open tag in vsplit
+nmap ‘ :vsp <CR>:exec("tag ".expand("<cword>"))<CR>

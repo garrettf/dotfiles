@@ -53,7 +53,7 @@
 "}}}
 " Initialisation:"{{{
 " ----------------------------------------------------------------------------
-if !(has("gui_running") || exists("g:gui_oni")) && &t_Co < 256
+if !(has("gui_running") || exists("g:gui_oni") || exists("veonim")) && &t_Co < 256
   finish
 endif
 
@@ -81,7 +81,7 @@ let colors_name = "material_edit"
 "}}}
 " GUI And Cterm Palettes:"{{{
 " ----------------------------------------------------------------------------
-if has("gui_running") || exists("g:gui_oni") || ($NVIM_TUI_ENABLE_TRUE_COLOR && has("nvim")) || has("gui_vimr")
+if has("gui_running") || exists("g:gui_oni") || ($NVIM_TUI_ENABLE_TRUE_COLOR && has("nvim")) || has("gui_vimr") || exists("veonim")
   let s:vmode      = "gui"
   let s:background = "#263238"
   let s:foreground = "#c5c8c6"
@@ -291,7 +291,7 @@ exe "let s:fg_darkpurple = ' ".s:vmode."fg=".s:darkpurple."'"
 
 exe "let s:fmt_none      = ' ".s:vmode."=NONE".          " term=NONE"        ."'"
 exe "let s:fmt_bold      = ' ".s:vmode."=NONE".s:b.      " term=NONE".s:b    ."'"
-exe "let s:fmt_bldi      = ' ".s:vmode."=NONE".s:b.      " term=NONE".s:b    ."'"
+exe "let s:fmt_bldi      = ' ".s:vmode."=NONE".s:b.s:i.  " term=NONE".s:b.s:i."'"
 exe "let s:fmt_undr      = ' ".s:vmode."=NONE".s:u.      " term=NONE".s:u    ."'"
 exe "let s:fmt_undb      = ' ".s:vmode."=NONE".s:u.s:b.  " term=NONE".s:u.s:b."'"
 exe "let s:fmt_undi      = ' ".s:vmode."=NONE".s:u.      " term=NONE".s:u    ."'"
@@ -301,7 +301,7 @@ exe "let s:fmt_stnd      = ' ".s:vmode."=NONE".s:s.      " term=NONE".s:s    ."'
 exe "let s:fmt_revr      = ' ".s:vmode."=NONE".s:r.      " term=NONE".s:r    ."'"
 exe "let s:fmt_revb      = ' ".s:vmode."=NONE".s:r.s:b.  " term=NONE".s:r.s:b."'"
 
-if (has("gui_running") || exists("g:gui_oni"))
+if (has("gui_running") || exists("g:gui_oni") || exists("veonim"))
   exe "let s:sp_none       = ' guisp=".s:none      ."'"
   exe "let s:sp_foreground = ' guisp=".s:foreground."'"
   exe "let s:sp_background = ' guisp=".s:background."'"
@@ -405,7 +405,7 @@ exe "hi! WarningMsg"    .s:fg_red         .s:bg_none        .s:fmt_none
 "		WildMenu"
 
 " Use Xresources for background colour
-if has('gui_running') || (g:hybrid_use_Xresources != 1 && g:hybrid_use_iTerm_colors != 1)
+if has('gui_running') || exists("veonim") || (g:hybrid_use_Xresources != 1 && g:hybrid_use_iTerm_colors != 1)
   exe "hi! Normal"        .s:fg_foreground  .s:bg_background  .s:fmt_none
 else
   exe "hi! Normal"        .s:fg_foreground  .s:bg_none        .s:fmt_none
@@ -414,7 +414,7 @@ endif
 "}}}
 " Generic Syntax Highlighting: (see :help group-name)"{{{
 " ----------------------------------------------------------------------------
-exe "hi! Comment"         .s:fg_comment     .s:bg_none        .s:fmt_none
+exe "hi! Comment"         .s:fg_comment     .s:bg_none        .s:fmt_ital
 
 exe "hi! Constant"        .s:fg_green       .s:bg_none        .s:fmt_none
 exe "hi! String"          .s:fg_green       .s:bg_none        .s:fmt_none
@@ -460,7 +460,7 @@ exe "hi! Ignore"          .s:fg_none        .s:bg_none        .s:fmt_none
 
 exe "hi! Error"           .s:fg_purple      .s:bg_darkred     .s:fmt_undr
 
-exe "hi! Todo"            .s:fg_addfg       .s:bg_none        .s:fg_bold
+exe "hi! Todo"            .s:fg_addfg       .s:bg_none        .s:fmt_bldi
 
 " Quickfix window highlighting
 exe "hi! qfLineNr"        .s:fg_yellow      .s:bg_none        .s:fmt_none

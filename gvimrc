@@ -3,11 +3,10 @@ macm Edit.Font.Smaller key=<nop>
 
 
 
-"unmenu Edit.Paste
 cunmenu Edit.Paste
 iunmenu Edit.Paste
 nunmenu Edit.Paste
 unmenu Edit.Paste
+"amenu Edit.Paste<tab>"+gP <Nop>
 "menu Edit.Paste <Nop>
-amenu Edit.Paste<tab>"+gP <Nop>
-macm Edit.Paste<Tab>"+gP action=paste:
+"macm Edit.Paste<Tab>"+gP action=paste:

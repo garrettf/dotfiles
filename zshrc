@@ -13,7 +13,6 @@ fi
 # Customize to your needs...
 . $HOME/bin/z.sh
 
-source ~/.dotfiles/aliases
 eval "$(rbenv init -)"
 
 PATH=$HOME/bin:$PATH
@@ -27,7 +26,24 @@ unalias rm
 
 # for cs 164
 LIBHOME=$HOME
+source ~/.profile
 
-# virtualenv
-WORKON_HOME=~/envs
-source /usr/local/bin/virtualenvwrapper.sh
+if [[ -d "$HOME/stripe" ]]; then
+  autoload -U +X bashcompinit && bashcompinit
+  complete -C /Users/$USER/stripe/space-commander/bin/commands/sc-complete sc
+  complete -C /Users/$USER/stripe/space-commander/bin/commands/sc-complete _sc
+
+  [ -f ~/.stripe-repos.sh ] && source ~/.stripe-repos.sh
+
+  path+="/Users/$USER/stripe/password-vault/bin"
+  path+="/Users/$USER/stripe/space-commander/bin"
+
+  ### BEGIN HENSON
+  path+="/Users/$USER/stripe/henson/bin"
+  ### END HENSON
+
+  # Useful stripe aliases and functions
+  alias stripe-curl='curl -s --unix-socket ~/.stripeproxy'
+
+  export PATH
+fi
