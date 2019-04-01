@@ -72,6 +72,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   " FUTURE GARRETT: replace with 'garrettf/fzf-tags' fork
   Plug 'zackhsi/fzf-tags'
   Plug 'joshdick/onedark.vim'
+  Plug 'drewtempelmeyer/palenight.vim'
 
   Plug 'kana/vim-submode'
 
@@ -830,7 +831,10 @@ let g:enable_bold_font = 0
 " set background=dark
 "colorscheme onedark
 if has('gui_running')
-  colorscheme material_edit
+  "colorscheme material_edit
+  "colorscheme onedark
+  let g:palenight_terminal_italics=1
+  colorscheme palenight
 elseif exists('veonim')
   colorscheme material_edit
 else
@@ -1052,7 +1056,7 @@ command! -bang -nargs=* Rg
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
 
-function! s:tags_sink(line)
+function! s:goto_tag_sink(line)
   let parts = split(a:line, '\t')
   let filename = parts[1]
   echom filename
@@ -1071,8 +1075,20 @@ function! s:extract_name(line)
   return name
 endfunction
 
+
+function! s:extract_symbol(line)
+  let parts = split(a:line, '\t')
+  let name_with_period = parts[0]
+  let name = name_with_period[:-2]
+  return name
+endfunction
+
 function! s:insert_tag_sink(line)
   execute ':normal! a' . s:extract_name(a:line)
+endfunction
+
+function! s:insert_symbol_sink(line)
+  execute ':normal! a' . s:extract_symbol(a:line)
 endfunction
 
 function! s:insert_terminal_tag_sink(line)
@@ -1081,14 +1097,21 @@ endfunction
 
 command! -bar Symbols call fzf#run({
       \ 'source': "awk -F'\\t' 'NR > 2 { if($2 !~ \"/?test/\") { gsub(\"class:\", \"\", $5); gsub(\"\\\\.\", \"::\", $5); if ($4 == \"f\") { delim = \"#\" } else if ($4 == \"F\") { delim = \".\" } else { delim = \"::\" } print \"\\033[0;33m\" $5 delim $1 \".\\t\\033[0;35m\" $2 \"\\t\" $3 } }' " . join(tagfiles()),
-      \ 'sink':    function('s:tags_sink'),
+      \ 'sink':    function('s:goto_tag_sink'),
+      \ 'options': '--ansi --delimiter="\t" --nth=1',
+      \ 'down': '40%'
+\ })
+
+command! -bar InsertSymbol call fzf#run({
+      \ 'source': "awk -F'\\t' 'NR > 2 { if($2 !~ \"/?test/\") { gsub(\"class:\", \"\", $5); gsub(\"\\\\.\", \"::\", $5); if ($4 == \"f\") { delim = \"#\" } else if ($4 == \"F\") { delim = \".\" } else { delim = \"::\" } print \"\\033[0;33m\" $5 delim $1 \".\\t\\033[0;35m\" $2 \"\\t\" $3 } }' " . join(tagfiles()),
+      \ 'sink':    function('s:insert_symbol_sink'),
       \ 'options': '--ansi --delimiter="\t" --nth=1',
       \ 'down': '40%'
 \ })
 
 command! -bar Tags call fzf#run({
       \ 'source': "awk -F'\\t' '{if((($4 == \"c\") || ($4 == \"m\")) && ($2 !~ \"/?test/\")) { if($4 == \"m\") { gsub(\"class\", \"\\\e[0;32mmodule\", $5); } gsub(\":\", \" \", $5); gsub(\"\\\\.\", \"::\", $5); print \"\\\e[0;33m\" $5  \"::\" $1 \".\\t\e[0;35m\" $2 \"\\t\" $3 }}' " . join(tagfiles()),
-      \ 'sink':    function('s:tags_sink'),
+      \ 'sink':    function('s:goto_tag_sink'),
       \ 'options': '--ansi --delimiter="\t" --nth=1',
       \ 'down': '40%'
 \ })
@@ -1123,9 +1146,11 @@ nnoremap <d-P> :Tags<cr>
 nnoremap <S-D-p> :Tags<cr>
 nnoremap <d-e> :Symbols<cr>
 
-nnoremap <d-i> :InsertTag<cr>
+"nnoremap <d-i> :InsertTag<cr>
+nnoremap <d-i> <esc>:InsertSymbol<cr>
 nnoremap <d-I> :InsertTagWithTest<cr>
-inoremap <d-i> <esc>:InsertTag<cr>
+"inoremap <d-i> <esc>:InsertTag<cr>
+inoremap <d-i> <esc>:InsertSymbol<cr>
 inoremap <d-I> <esc>:InsertTagWithTest<cr>
 tnoremap <d-i> <c-w>:InsertTerminalTag<cr>
 
