@@ -85,6 +85,10 @@ paytags() {
   find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort > tags
 }
 
+
+paytags-with-rbi() {
+  find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb*' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort > tags
+}
 shorten() {
   if [ $# -eq 0 ]; then
     echo "url=`pbpaste`" | stripe-curl http://go.northwest.corp.stripe.com/ -d name="" -d @- | pup '#link attr{value}' | tee >(pbcopy)
