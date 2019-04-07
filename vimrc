@@ -44,6 +44,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   "   https://github.com/tpope/vim-surround
   Plug 'tpope/vim-surround'
   Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-eunuch'
 
   " Git diff indicators next to line numbers
   Plug 'airblade/vim-gitgutter'
@@ -214,6 +215,10 @@ fun! <SID>StripTrailingWhitespace()
     call cursor(l, c)
 endfun
 autocmd FileType c,cpp,java,php,ruby,eruby,python,perl,rb,html,haml,yaml,sql,js,javascript,javascript.jsx autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
+
+autocmd FileType ruby
+  \ setlocal iskeyword+=! |
+  \ setlocal iskeyword+=?
 
 " 4 spaces for java
 autocmd FileType java
@@ -712,7 +717,7 @@ endif
 " ...or the regular Menlo
 "set guifont=Menlo:h12
 if has("gui_running")
-  set guifont=Fira\ Mono:h13
+  set guifont=Fira\ Mono:h15
   " set guifont=Fira\ Mono\ for\ Powerline:h13
   "set guifont=Fira\ Code:h13
   "set linespace=2
@@ -833,13 +838,21 @@ let g:enable_bold_font = 0
 if has('gui_running')
   "colorscheme material_edit
   "colorscheme onedark
-  let g:palenight_terminal_italics=1
-  colorscheme palenight
+  "let g:palenight_terminal_italics=1
+  "colorscheme palenight
 elseif exists('veonim')
-  colorscheme material_edit
+  "colorscheme material_edit
 else
-  colorscheme onedark
+  "colorscheme onedark
 end
+
+let g:palenight_terminal_italics=1
+colorscheme palenight
+let colors = palenight#GetColors()
+call g:palenight#set_highlight("BufTabLineCurrent", {"fg": colors.black, "bg": colors.blue})
+call g:palenight#set_highlight("BufTabLineActive", {"fg": colors.white})
+call g:palenight#set_highlight("BufTabLineHidden", {"fg": colors.comment_grey})
+call g:palenight#set_highlight("BufTabLineFill", {})
 
 " Terminal-specific settings
 if !has("gui_running") && !has("gui_vimr") && !exists("g:gui_oni")
@@ -1002,14 +1015,15 @@ tmap <D-0> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(10)"<cr>
 " when set to "delete", this makes buffers disappear by default
 " when set to "hide", this makes them stay open in the background (and on the
 " tab bar) -- use <D-d> if you want to navigate away AND delete the buffer
-set bufhidden=hide
-set hidden
+"set bufhidden=hide
+set nohidden
 
 if has('gui_macvim') || exists('veonim')
   unmenu File.New\ Tab
   nmap <silent> <D-t> :setlocal bufhidden=hide<cr>:enew<cr>
   tmap <silent> <D-t> <c-w>:enew<cr>
-  "autocmd BufReadPost * set bufhidden=delete
+  " comment this if you want to keep all windows
+  autocmd BufReadPost * set bufhidden=delete
   nmap <silent> <D-k> :setlocal bufhidden=hide<cr>
 
   au BufWinEnter * if &buftype == 'terminal' | setlocal bufhidden=hide | endif
@@ -1028,7 +1042,7 @@ if has('gui_macvim') || exists('veonim')
   tmap <D-v> <c-w>"+
 
   unmenu Tools.List\ Errors
-  nmap <silent> <D-l> :setlocal bufhidden=""<cr>
+  nmap <silent> <D-l> :setlocal bufhidden="delete"<cr>
 
   unmenu File.Print
   nnoremap <silent> <D-p> :Buffer<cr>
@@ -1063,8 +1077,7 @@ function! s:goto_tag_sink(line)
   let excmd = parts[2]
   echom excmd
   call tagimposter#pushtag(expand("<cword>"))
-  execute 'silent e' filename
-  execute excmd
+  execute 'silent e ' . filename . ' | ' . excmd
 endfunction
 
 function! s:extract_name(line)
@@ -1095,15 +1108,17 @@ function! s:insert_terminal_tag_sink(line)
   call term_sendkeys('', s:extract_name(a:line))
 endfunction
 
+let symbols_file = 'symbols'
+
 command! -bar Symbols call fzf#run({
-      \ 'source': "awk -F'\\t' 'NR > 2 { if($2 !~ \"/?test/\") { gsub(\"class:\", \"\", $5); gsub(\"\\\\.\", \"::\", $5); if ($4 == \"f\") { delim = \"#\" } else if ($4 == \"F\") { delim = \".\" } else { delim = \"::\" } print \"\\033[0;33m\" $5 delim $1 \".\\t\\033[0;35m\" $2 \"\\t\" $3 } }' " . join(tagfiles()),
+      \ 'source': "awk -F'\\t' 'NR > 2 { if($2 !~ \"/?test/\") { gsub(\"class:\", \"\", $5); gsub(\"\\\\.\", \"::\", $5); if ($4 == \"f\") { delim = \"#\" } else if ($4 == \"F\") { delim = \".\" } else { delim = \"::\" } print \"\\033[0;33m\" $5 delim $1 \".\\t\\033[0;35m\" $2 \"\\t\" $3 } }' " . symbols_file,
       \ 'sink':    function('s:goto_tag_sink'),
       \ 'options': '--ansi --delimiter="\t" --nth=1',
       \ 'down': '40%'
 \ })
 
 command! -bar InsertSymbol call fzf#run({
-      \ 'source': "awk -F'\\t' 'NR > 2 { if($2 !~ \"/?test/\") { gsub(\"class:\", \"\", $5); gsub(\"\\\\.\", \"::\", $5); if ($4 == \"f\") { delim = \"#\" } else if ($4 == \"F\") { delim = \".\" } else { delim = \"::\" } print \"\\033[0;33m\" $5 delim $1 \".\\t\\033[0;35m\" $2 \"\\t\" $3 } }' " . join(tagfiles()),
+      \ 'source': "awk -F'\\t' 'NR > 2 { if($2 !~ \"/?test/\") { gsub(\"class:\", \"\", $5); gsub(\"\\\\.\", \"::\", $5); if ($4 == \"f\") { delim = \"#\" } else if ($4 == \"F\") { delim = \".\" } else { delim = \"::\" } print \"\\033[0;33m\" $5 delim $1 \".\\t\\033[0;35m\" $2 \"\\t\" $3 } }' " . symbols_file,
       \ 'sink':    function('s:insert_symbol_sink'),
       \ 'options': '--ansi --delimiter="\t" --nth=1',
       \ 'down': '40%'
