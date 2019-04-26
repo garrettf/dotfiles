@@ -6,6 +6,7 @@
 [core]
 	excludesfile = /Users/garrett/.dotfiles/git-user-excludes
 	editor = vim
+	preloadindex = true
 [color]
 	ui = true
 [push]
