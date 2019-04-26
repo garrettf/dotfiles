@@ -1024,6 +1024,9 @@ if has('gui_macvim') || exists('veonim')
   tmap <silent> <D-t> <c-w>:enew<cr>
   " comment this if you want to keep all windows
   autocmd BufReadPost * set bufhidden=delete
+  " always keep a buffer when we write to it
+  autocmd BufWritePost * setlocal bufhidden=hide
+
   nmap <silent> <D-k> :setlocal bufhidden=hide<cr>
 
   au BufWinEnter * if &buftype == 'terminal' | setlocal bufhidden=hide | endif
