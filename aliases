@@ -81,13 +81,13 @@ pay-server-symbol() {
 }
 
 alias pay-server-class-clip="pay-server-class | tr -d '\n' | pbcopy"
+
 paytags() {
-  find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort > tags
+  find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort >| tags
 }
 
-
-paytags-with-rbi() {
-  find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb*' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort > tags
+paysymbols() {
+  find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb*' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort >| symbols
 }
 shorten() {
   if [ $# -eq 0 ]; then
