@@ -53,7 +53,12 @@ call plug#begin(expand('~/.vim/bundle/'))
   Plug 'tpope/vim-endwise'
 
   " Asynchronous linting
+if has('nvim')
+  " LSP completions
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+else
   Plug 'w0rp/ale'
+endif
 
   " Zen mode for distraction-free writing
   Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
