@@ -16,10 +16,7 @@ fi
 eval "$(rbenv init -)"
 
 PATH=$HOME/bin:$PATH
-PATH=$PATH:/Applications/Postgres.app/Contents/Versions/9.4/bin
 PATH=$PATH:$HOME/node_modules/.bin
-# CS 164 stuff, unfortunately
-PATH=$HOME/local/bin:$PATH
 
 # regular rm
 unalias rm
@@ -28,15 +25,7 @@ unalias rm
 LIBHOME=$HOME
 source ~/.profile
 
-if [[ -d "$HOME/stripe" ]]; then
-  autoload -U +X bashcompinit && bashcompinit
-  complete -C /Users/$USER/stripe/space-commander/bin/commands/sc-complete sc
-  complete -C /Users/$USER/stripe/space-commander/bin/commands/sc-complete _sc
-
-  [ -f ~/.stripe-repos.sh ] && source ~/.stripe-repos.sh
-
-  path+="/Users/$USER/stripe/password-vault/bin"
-  path+="/Users/$USER/stripe/space-commander/bin"
+source ~/.aliases
 
   ### BEGIN HENSON
   path+="/Users/$USER/stripe/henson/bin"

@@ -1,12 +1,13 @@
 [user]
 	name = Garrett Fidalgo
-	email = garrett@stripe.com
+	email = garrett@fidalgo.io
 [credential]
 	helper = osxkeychain
 [core]
-	excludesfile = /Users/garrett/.dotfiles/git-user-excludes
+	excludesfile = /Users/garrett/dotfiles/git-user-excludes
 	editor = vim
 	preloadindex = true
+	whitespace = cr-at-eol
 [color]
 	ui = true
 [push]
@@ -23,5 +24,3 @@
     tool = mvimdiff
 [difftool "mvimdiff"]
     cmd = mvim -f -d \"$LOCAL\" \"$REMOTE\"
-[gpg]
-	program = gpg

@@ -13,8 +13,7 @@ alias love="/Applications/love.app/Contents/MacOS/love"
 alias o="open"
 alias charcount="ruby -e \"puts gets.chomp.length\""
 
-alias v=vagrant
-
+alias g=git
 alias gs="git status"
 alias gd="git diff"
 alias gdc="git diff --cached"
@@ -46,10 +45,9 @@ gdm() {
 }
 
 alias gdmc="gdm --cached"
-alias stripe-curl="curl --unix-socket ~/.stripeproxy"
 
 
-pay-server-class() {
+my-class() {
   awk -F'\t' '{
     if( ( ($4 == "c") || ($4 == "m")) && ($2 !~ "/?test/")) { 
       if($4 == "m") {
@@ -62,7 +60,7 @@ pay-server-class() {
   }' tags | fzf --ansi -d "\t" -n 1 | ruby -lne 'print $_.match(/([^ .]+)\./)[1]'
 }
 
-pay-server-symbol() {
+my-symbol() {
   # skip first two lines
   awk -F'\t' 'NR > 2 {
     if($2 !~ "/?test/") { 
@@ -80,21 +78,14 @@ pay-server-symbol() {
   }' tags | fzf --ansi -d "\t" -n 1 | ruby -lne 'print $_.match(/([^ .]+)\./)[1]'
 }
 
-alias pay-server-class-clip="pay-server-class | tr -d '\n' | pbcopy"
+alias my-class-clip="my-class | tr -d '\n' | pbcopy"
 
-paytags() {
+mytags() {
   find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort >| tags
 }
 
-paysymbols() {
+mysymbols() {
   find . \( -name 'build' -o -name 'vendor' -o -name 'migrations' \) -prune -o -name '*.rb*' -print0 | xargs -0 -P 6 -n 3000 ripper-tags -f - | LC_ALL=C sort -u --radixsort >| symbols
-}
-shorten() {
-  if [ $# -eq 0 ]; then
-    echo "url=`pbpaste`" | stripe-curl http://go.northwest.corp.stripe.com/ -d name="" -d @- | pup '#link attr{value}' | tee >(pbcopy)
-  else
-    stripe-curl http://go.northwest.corp.stripe.com/ -d name="" -d $1 | pup '#link attr{value}' | tee >(pbcopy)
-  fi
 }
 
 gfetch-branch() {

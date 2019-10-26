@@ -74,6 +74,8 @@ call plug#begin(expand('~/.vim/bundle/'))
   Plug 'zackhsi/fzf-tags'
   Plug 'joshdick/onedark.vim'
   Plug 'drewtempelmeyer/palenight.vim'
+  Plug 'ayu-theme/ayu-vim'
+  Plug 'rakr/vim-one'
 
   Plug 'kana/vim-submode'
 
@@ -107,6 +109,7 @@ call plug#begin(expand('~/.vim/bundle/'))
   " ----------------------------------------------
   "     Language-specific Plugins
   " ----------------------------------------------
+  Plug 'sheerun/vim-polyglot'
   Plug 'kchmck/vim-coffee-script'
   Plug 'fatih/vim-go'
   Plug 'derekwyatt/vim-scala'
@@ -126,6 +129,10 @@ call plug#begin(expand('~/.vim/bundle/'))
   "Plug 'othree/yajs.vim'
   Plug 'mxw/vim-jsx'
   let g:jsx_ext_required = 0
+
+  Plug 'ianks/vim-tsx'
+
+  Plug 'Galooshi/vim-import-js'
 
   " Automatic XML tag closing:
   "   http://www.vim.org/scripts/script.php?script_id=13
@@ -178,6 +185,73 @@ augroup TexAutoWrite
     autocmd FileType tex :autocmd! BufWritePost * Start! pdflatex <afile>
 augroup END
 
+augroup TSBindings
+  autocmd! TSBindings
+
+  autocmd FileType typescript* autocmd! FileType ale-preview set syntax=typescript
+
+  function! Goto_tag(window)
+    call tagimposter#pushtag(expand("<cword>"))
+		if a:window
+			split
+		endif
+
+		if has("nvim")
+			call CocActionAsync('jumpDefinition')
+		else 
+			ALEGoToDefinition
+		endif
+  endfunction
+
+  autocmd FileType typescript* nnoremap <silent> <C-]> :call Goto_tag(0)<cr>
+  autocmd FileType typescript* nnoremap <silent> <C-w><C-]> :call Goto_tag(1)<cr>
+
+	if has("nvim")
+		"	"
+		"" Use tab for trigger completion with characters ahead and navigate.
+		"" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+		"inoremap <silent><expr> <TAB>
+		"			\ pumvisible() ? "\<C-n>" :
+		"			\ <SID>check_back_space() ? "\<TAB>" :
+		"			\ coc#refresh()
+		"inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+		"function! s:check_back_space() abort
+		"	let col = col('.') - 1
+		"	return !col || getline('.')[col - 1]  =~# '\s'
+		"endfunction
+
+		"" Use <c-space> to trigger completion.
+		"inoremap <silent><expr> <c-space> coc#refresh()
+
+		"" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
+		"" Coc only does snippet and additional edit on confirm.
+		"
+		"function s:hitting_enter()
+		"	if complete_info()["selected"] != "-1"
+		"		feedkeys("<C-y>")
+		"	else
+		"	  feedkeys("<C-g>u<CR>")
+		"	endif
+		"endfunction
+		"inoremap <expr> <cr> :call hitting_enter()<cr>
+		"inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+		" Or use `complete_info` if your vim support it, like:
+		"inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+	else
+		autocmd FileType typescript* let g:SuperTabContextTextOmniPrecedence=['&omnifunc', '&completefunc']
+	endif
+augroup END
+
+augroup ALEPreviewAutocmds
+  autocmd! ALEPreviewAutocmds
+  autocmd FileType ale-preview call timer_start(10, { tid -> execute('resize ' . (str2nr(line('$')) + 1))})
+augroup END
+
+nmap <D-p> <C-w>P
+
+" TODO: Get this to work
+
 " Run processing sketches upon save (kept for future macro creation)
 "autocmd FileType processing :autocmd! BufWritePost * Start! processing-java --sketch=%:p:h --output=%:p:h/bin --force --run
 
@@ -191,17 +265,24 @@ let g:ale_linters = {
 \   'ruby': ['rubocop'],
 \   'javascript': ['flow', 'prettier', 'eslint'],
 \   'jsx': ['flow', 'prettier', 'eslint'],
+\   'tsx': ['prettier', 'eslint'],
+\   'typescript': ['prettier', 'eslint', 'tsserver', 'tslint'],
+\   'rust': ['rustc'],
 \}
 
 let g:ale_fixers = {
 \   'javascript': ['prettier'],
 \   'jsx': ['prettier'],
+\   'tsx': ['prettier'],
+\   'typescript': ['prettier'],
+\   'rust': ['rustfmt'],
 \}
 " Only lint on open/save
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_fix_on_save = 1
 let g:ale_javascript_prettier_use_local_config = 1
 let g:ale_ruby_rubocop_executable = 'bundle'
+let g:ale_completion_tsserver_autoimport = 1
 
 " Remove whitespace at EOL
 fun! <SID>StripTrailingWhitespace()
@@ -214,7 +295,7 @@ fun! <SID>StripTrailingWhitespace()
     %s/\s\+$//e
     call cursor(l, c)
 endfun
-autocmd FileType c,cpp,java,php,ruby,eruby,python,perl,rb,html,haml,yaml,sql,js,javascript,javascript.jsx autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
+autocmd FileType c,cpp,java,php,ruby,eruby,python,perl,rb,html,haml,yaml,sql,js,javascript,javascript.jsx,tsx,typescript autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespace()
 
 autocmd FileType ruby
   \ setlocal iskeyword+=! |
@@ -363,9 +444,6 @@ let g:cpsm_query_inverting_delimiter = ' '
 let g:gitgutter_realtime = 0
 let g:gitgutter_eager = 0
 let g:gitgutter_escape_grep = 1
-
-" rhubarb config
-let g:github_enterprise_urls = ['https://git.corp.stripe.com']
 
 " Goyo
 let g:goyo_margin_top = 0
@@ -604,9 +682,6 @@ imap <F13> <C-n>
 " Delete a buffer without closing the window with <C-q>
 nmap <C-q> :bprevious \| bdelete #<cr>
 
-" Command-R in visual mode to search and replace selected text
-vnoremap <D-r> "hy:%s/<C-r>h//<left>
-
 " <leader>g toggles Goyo's zen mode
 nnoremap <Leader>g :Goyo<CR>
 
@@ -722,7 +797,7 @@ if has("gui_running")
   "set guifont=Fira\ Code:h13
   "set linespace=2
   "set guifont=Menlo:h13
-  set linespace=3
+  set linespace=5
 endif
 
 "Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
@@ -854,6 +929,11 @@ call g:palenight#set_highlight("BufTabLineActive", {"fg": colors.white})
 call g:palenight#set_highlight("BufTabLineHidden", {"fg": colors.comment_grey})
 call g:palenight#set_highlight("BufTabLineFill", {})
 
+let ayucolor="light"
+
+" vim-one
+let g:one_allow_italics = 1 
+
 " Terminal-specific settings
 if !has("gui_running") && !has("gui_vimr") && !exists("g:gui_oni")
   "colorscheme hybrid_material
@@ -930,12 +1010,6 @@ else
   tnoremap <D-l> <C-w>l
 endif
 
-inoremap P:: Private::
-inoremap PM:: Private::Model::
-inoremap OPF:: Opus::PaymentFlows::
-inoremap PMI:: Private::Model::PaymentIntent
-inoremap PIS:: Private::Model::PaymentIntentSnapshot
-
 let g:bclose_multiple = 0
 nnoremap <silent> <D-d> :Bclose<cr>
 if has('nvim')
@@ -998,13 +1072,16 @@ tmap <D-7> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(7)"<cr>
 tmap <D-8> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(8)"<cr>
 tmap <D-9> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(9)"<cr>
 tmap <D-0> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(10)"<cr>
+tmap <silent> <D-e> <c-w>:b#<cr>
+
+nnoremap <silent> <D-e> :Topen<cr>
 
 "if has('nvim')
-  nnoremap <D-e> :Topen<cr>
-  vnoremap <leader>r :<c-U>execute ":T pt" expand('%') "-l" line(".")<cr>
-  nnoremap <leader>r :execute ":T pt" expand('%')<cr>
-  vnoremap <D-r> :<c-U>execute ":T pt" expand('%') "-l" line(".")<cr>
-  nnoremap <D-r> :execute ":T pt" expand('%')<cr>
+  nnoremap <leader>r :execute ":T echo" expand('%')<cr>
+  " vnoremap <leader>r :<c-U>execute ":T pt" expand('%') "-l" line(".")<cr>
+  " nnoremap <leader>r :execute ":T pt" expand('%')<cr>
+  " vnoremap <D-r> :<c-U>execute ":T pt" expand('%') "-l" line(".")<cr>
+  " nnoremap <D-r> :execute ":T pt" expand('%')<cr>
 "else
   " include line number in visual mode
 "  nnoremap <leader>r :T pt % .<cr>
@@ -1018,7 +1095,7 @@ tmap <D-0> <c-w>:bn! \| execute "normal \<Plug>BufTabLine.Go(10)"<cr>
 "set bufhidden=hide
 set nohidden
 
-if has('gui_macvim') || exists('veonim')
+if has('gui_macvim') || exists('veonim') || has("gui_vimr")
   unmenu File.New\ Tab
   nmap <silent> <D-t> :setlocal bufhidden=hide<cr>:enew<cr>
   tmap <silent> <D-t> <c-w>:enew<cr>
@@ -1033,7 +1110,7 @@ if has('gui_macvim') || exists('veonim')
   if has('nvim') 
     au TermOpen * setlocal nonumber | setlocal bufhidden=hide
   else
-    au TerminalOpen * setlocal nonumber | setlocal bufhidden=hide
+    au TerminalOpen * setlocal nonumber | setlocal bufhidden=hide | nmap <buffer> <silent> <D-e> :b#<cr>
   end
 
   " see ~/.gvimrc
@@ -1048,7 +1125,7 @@ if has('gui_macvim') || exists('veonim')
   nmap <silent> <D-l> :setlocal bufhidden="delete"<cr>
 
   unmenu File.Print
-  nnoremap <silent> <D-p> :Buffer<cr>
+  nnoremap <silent> <D-b> :Buffer<cr>
 
   " command-K to clear
   tmap <D-k> <C-c>clear<cr> 
@@ -1159,10 +1236,9 @@ command! -bar InsertTerminalTag call fzf#run({
 command! -nargs=1 -complete=tag Tag call fzf_tags#Find(<q-args>)
 
 " experiment: use fzf instead of ctrlp
-nnoremap <c-p> :Files<cr>
-nnoremap <d-P> :Tags<cr>
-nnoremap <S-D-p> :Tags<cr>
-nnoremap <d-e> :Symbols<cr>
+nnoremap <silent> <c-p> :Files<cr>
+nnoremap <silent> <d-P> :Tags<cr>
+nnoremap <silent> <S-D-b> :Tags<cr>
 
 "nnoremap <d-i> :InsertTag<cr>
 nnoremap <d-i> <esc>:InsertSymbol<cr>
@@ -1177,7 +1253,7 @@ nnoremap <leader>fdm :set fdm=
 " EXPERIMENT
 " set scrolloff=99
 
-nmap <C-]> <Plug>(fzf_tags)
+" nmap <C-]> <Plug>(fzf_tags)
 
 call submode#enter_with('windowresizing', 'n', '', 'F')
 call submode#leave_with('windowresizing', 'n', '', '<Esc>')
@@ -1193,3 +1269,52 @@ call submode#map('windowresizing', 'n', '', 'L', '<c-w>10>')
 
 " A-] to open tag in vsplit
 nmap ‘ :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+
+if !has("gui_running") && !has("gui_vimr")
+	" fix meta-keys which generate <Esc>a .. <Esc>z
+	let c='a'
+	while c <= 'z'
+		exec "set <M-".c.">=\e".c
+		exec "imap \e".c." <M-".c.">"
+		exec "set <M-".toupper(c).">=\e".toupper(c)
+		exec "imap \e".toupper(c)." <M-".toupper(c).">"
+		let c = nr2char(1+char2nr(c))
+	endw
+endif
+
+" Automatically open splits below the current window instead of above
+set splitbelow
+
+" for nvim
+set noshowcmd
+set noruler
+
+if has("nvim")
+	nmap <silent> <D-g> :call CocAction('doHover')<cr>
+	nmap <silent> <D-r> <Plug>(coc-references)
+
+	" Also for coc.vim:
+	"
+	" You will have bad experience for diagnostic messages when it's default 4000.
+	set updatetime=300
+
+	" don't give |ins-completion-menu| messages.
+	set shortmess+=c
+
+
+	" backspace words with alt
+	imap <A-BS> <C-w>
+	" backspace the last entered text with cmd
+	imap <D-BS> <C-u>
+
+	" cmd cursor movement
+	map <D-left> <home>
+	map <D-right> <end>
+	map <D-up> <C-home>
+	map <D-down> <C-end>
+	
+	imap <A-left> <C-left>
+	imap <A-right> <C-right>
+else 
+	nmap <D-g> <Plug>(ale_hover)
+endif
