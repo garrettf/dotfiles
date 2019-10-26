@@ -27,12 +27,4 @@ source ~/.profile
 
 source ~/.aliases
 
-  ### BEGIN HENSON
-  path+="/Users/$USER/stripe/henson/bin"
-  ### END HENSON
-
-  # Useful stripe aliases and functions
-  alias stripe-curl='curl -s --unix-socket ~/.stripeproxy'
-
-  export PATH
-fi
+eval "$(nodenv init -)"
